@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>道路桥梁2601 课程表 · 周视图</title>
+<style>
+  :root{--border:#d7dde8;--bg:#f5f7fa;--text:#2b3442;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:"PingFang SC","Microsoft YaHei",system-ui,sans-serif;background:var(--bg);color:var(--text);padding:20px;}
+  .wrap{max-width:1100px;margin:0 auto;background:#fff;border:1px solid var(--border);border-radius:14px;padding:24px;box-shadow:0 4px 18px rgba(0,0,0,.05);}
+  header{text-align:center;margin-bottom:18px;}
+  header h1{font-size:22px;margin-bottom:4px;}
+  header .sub{font-size:13px;color:#68758a;}
+  .toolbar{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:10px;margin:16px 0;}
+  .toolbar button{border:1px solid #c9d3e0;background:#fff;border-radius:8px;padding:8px 14px;cursor:pointer;font-size:14px;transition:.15s;}
+  .toolbar button:hover:not(:disabled){background:#eef3fa;}
+  .toolbar button:disabled{opacity:.4;cursor:not-allowed;}
+  .toolbar select{font-size:14px;padding:8px 10px;border:1px solid #c9d3e0;border-radius:8px;background:#fff;}
+  .week-label{font-weight:700;font-size:16px;min-width:72px;text-align:center;}
+  .range{text-align:center;font-size:13px;color:#68758a;margin-bottom:8px;}
+  .prac-banner{display:none;background:#fff8e1;border:1px solid #f0d060;border-radius:10px;padding:10px 14px;margin:10px 0;font-size:14px;}
+  .prac-item{margin:2px 0;}
+  .table-wrap{overflow-x:auto;margin-top:10px;}
+  table{border-collapse:collapse;width:100%;min-width:820px;}
+  th,td{border:1px solid var(--border);padding:8px;vertical-align:top;}
+  thead th{background:#f0f4f9;font-size:14px;padding:10px 8px;}
+  .sec-label{background:#f8fafc;text-align:center;width:82px;font-size:12px;color:#556;}
+  .sec-name{font-weight:700;font-size:13px;}
+  .period{font-size:11px;color:#98a2b3;margin-top:2px;}
+  .course{border-left:4px solid;border-radius:8px;padding:8px 9px;margin-bottom:6px;box-shadow:0 1px 3px rgba(0,0,0,.06);}
+  .course:last-child{margin-bottom:0;}
+  .c-name{font-weight:700;font-size:13px;line-height:1.35;}
+  .c-info{font-size:12px;color:#455;margin-top:3px;}
+  .c-weeks{font-size:11px;color:#8a94a6;margin-top:3px;}
+  .empty{color:#c2cad6;text-align:center;font-size:13px;padding:6px 0;}
+  .legend{margin-top:16px;font-size:12px;color:#556;}
+  .legend-title{font-weight:700;margin-bottom:6px;}
+  .legend-items{display:flex;flex-wrap:wrap;gap:6px;}
+  .legend-item{display:inline-flex;align-items:center;gap:5px;background:#f7f9fc;border:1px solid #e3e8f0;border-radius:999px;padding:4px 10px;}
+  .dot{width:10px;height:10px;border-radius:3px;display:inline-block;}
+  footer{margin-top:16px;font-size:12px;color:#98a2b3;text-align:center;}
+  @media (max-width:600px){.wrap{padding:14px;}header h1{font-size:18px;}}
+  @media print{body{background:#fff;}.toolbar{display:none;}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>道路桥梁2601 课程表</h1>
+    <div class="sub">2026-2027学年 第1学期 · 道路与桥梁工程技术 · 按周查看</div>
+  </header>
+
+  <div class="toolbar">
+    <button id="prevBtn">‹ 上一周</button>
+    <div class="week-label" id="weekLabel">第 1 周</div>
+    <button id="nextBtn">下一周 ›</button>
+    <select id="weekSelect"></select>
+  </div>
+
+  <div class="range" id="weekRange"></div>
+  <div class="prac-banner" id="pracBanner"></div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>节次</th><th>星期一</th><th>星期二</th><th>星期三</th><th>星期四</th><th>星期五</th>
+        </tr>
+      </thead>
+      <tbody id="gridBody"></tbody>
+    </table>
+  </div>
+
+  <div class="legend">
+    <div class="legend-title">课程图例</div>
+    <div class="legend-items" id="legendItems"></div>
+  </div>
+
+  <footer>数据来源：道路桥梁2601课表（2026-09-13打印）· 本学期共20周（2026-08-31 至 2027-01-15）</footer>
+</div>
+
+<script>
+const START_DATE = new Date(2026, 7, 31); // 第1周周一：2026-08-31
+const TOTAL_WEEKS = 20;
+let currentWeek = 1;
+
+const practice = [
+  { name: '认识实习', teacher: '杨义辉', week: 9 },
+  { name: '工程测量实训', teacher: '冉凌', week: 16 }
+];
+
+const sections = [
+  { label: '第1-2节', period: '上午', start: 1, end: 2 },
+  { label: '第3-4节', period: '上午', start: 3, end: 4 },
+  { label: '第5-6节', period: '下午', start: 5, end: 6 },
+  { label: '第7-8节', period: '下午', start: 7, end: 8 },
+  { label: '第9-10节', period: '晚上', start: 9, end: 10 }
+];
+
+// d: 1=周一 ... 5=周五；s: [开始节, 结束节]；w: 周次原文
+const courses = [
+  // 星期一
+  { n:'高职英语Ⅰ', d:1, s:[1,2], w:'3-7周,10-11周,13-15周,17-18周', p:'新D304', t:'田小霞' },
+  { n:'工程制图', d:1, s:[3,4], w:'3-11周,13-15周,17周', p:'新D309', t:'陈莉' },
+  { n:'工程制图', d:1, s:[5,6], w:'3-5周', p:'新C307', t:'陈莉' },
+  { n:'大学体育Ⅰ', d:1, s:[7,8], w:'3周,15周', p:'新校区运动场', t:'周金伟' },
+  { n:'思想道德与法治', d:1, s:[9,10], w:'3-7周,10-11周,13-15周,17-18周', p:'新D310', t:'付灿' },
+  // 星期二
+  { n:'大学生安全教育Ⅰ', d:2, s:[1,2], w:'10周,15-17周(单),18周', p:'新C408', t:'胡梅' },
+  { n:'形势与政策Ⅰ', d:2, s:[1,2], w:'13-14周', p:'新D503', t:'程鸿' },
+  { n:'工程材料', d:2, s:[3,4], w:'3-8周', p:'新D307', t:'钟玉洁' },
+  { n:'工程材料', d:2, s:[3,4], w:'9-11周,13-15周,17-18周', p:'新D307', t:'钟玉洁' },
+  { n:'工程材料', d:2, s:[5,6], w:'9-11周,13-15周,17-18周', p:'新D307', t:'钟玉洁' },
+  { n:'工程材料', d:2, s:[5,6], w:'6-7周', p:'新C406', t:'钟玉洁' },
+  { n:'高等数学Ⅰ', d:2, s:[7,8], w:'10周', p:'新D310', t:'胡丽娟' },
+  { n:'高等数学Ⅰ', d:2, s:[7,8], w:'13周', p:'新B201', t:'胡丽娟' },
+  { n:'职业发展与就业指导(含专业认知）（上）', d:2, s:[9,10], w:'3-6周', p:'新D401', t:'袁佐霄' },
+  { n:'思想道德与法治', d:2, s:[9,10], w:'7周,10-11周,13-15周,17-18周', p:'新D310', t:'付灿' },
+  // 星期三
+  { n:'数字技术应用基础', d:3, s:[1,2], w:'3-7周,9-10周', p:'新D403', t:'陈艳' },
+  { n:'数字技术应用基础', d:3, s:[1,2], w:'13-15周,17周', p:'XA208计算机实训室12', t:'陈艳' },
+  { n:'数字技术应用基础', d:3, s:[3,4], w:'4周', p:'新D410', t:'陈艳' },
+  { n:'大学体育Ⅰ', d:3, s:[3,4], w:'7周', p:'新校区运动场', t:'周金伟' },
+  // 星期四
+  { n:'工程材料', d:4, s:[1,2], w:'6-7周', p:'新D310', t:'钟玉洁' },
+  { n:'工程材料', d:4, s:[1,2], w:'8-9周', p:'新D409', t:'钟玉洁' },
+  { n:'工程测量', d:4, s:[1,2], w:'10-11周,13-18周', p:'新D310', t:'冉凌' },
+  { n:'工程测量', d:4, s:[3,4], w:'10-11周,13-18周', p:'新D310', t:'冉凌' },
+  { n:'大学生心理健康教育', d:4, s:[9,10], w:'3-7周,10-11周,13周', p:'新D406', t:'徐梓峻' },
+  // 星期五
+  { n:'高等数学Ⅰ', d:5, s:[1,2], w:'10-11周,13-15周,17-18周', p:'新D310', t:'胡丽娟' },
+  { n:'大学体育Ⅰ', d:5, s:[3,4], w:'3-7周,10-11周,13-15周,17-18周', p:'新校区运动场', t:'周金伟' },
+  { n:'高职英语Ⅰ', d:5, s:[5,6], w:'3-7周,10-11周,13-15周,17-18周', p:'新C310', t:'田小霞' },
+  { n:'思想道德与法治', d:5, s:[7,8], w:'3-6周', p:'新B201', t:'付灿' },
+  { n:'大学体育Ⅰ', d:5, s:[7,8], w:'7周', p:'新校区运动场', t:'周金伟' },
+  { n:'高等数学Ⅰ', d:5, s:[7,8], w:'10-11周,13-15周,17-18周', p:'新B205-1', t:'胡丽娟' }
+];
+
+const colorDefs = [
+  ['高职英语Ⅰ', '#E3F2FD', '#1E88E5'],
+  ['大学生安全教育Ⅰ', '#FFF3E0', '#FB8C00'],
+  ['形势与政策Ⅰ', '#FCE4EC', '#D81B60'],
+  ['数字技术应用基础', '#E8F5E9', '#43A047'],
+  ['工程材料', '#FFF9C4', '#F9A825'],
+  ['工程测量', '#EFEBE9', '#6D4C41'],
+  ['高等数学Ⅰ', '#EDE7F6', '#5E35B1'],
+  ['工程制图', '#E0F7FA', '#00838F'],
+  ['大学体育Ⅰ', '#F1F8E9', '#7CB342'],
+  ['思想道德与法治', '#FFEBEE', '#E53935'],
+  ['职业发展与就业指导(含专业认知）（上）', '#FFF8E1', '#FF8F00'],
+  ['大学生心理健康教育', '#E8EAF6', '#3949AB']
+];
+
+function parseWeeks(str) {
+  const res = new Set();
+  const s = str.replace(/\s+/g, '');
+  s.split(',').forEach(part => {
+    if (!part) return;
+    let p = part;
+    const oddOnly = p.includes('单');
+    const evenOnly = p.includes('双');
+    p = p.replace('(单)', '').replace('（单）', '')
+         .replace('(双)', '').replace('（双）', '')
+         .replace('周', '');
+    if (p.includes('-')) {
+      const seg = p.split('-').map(Number);
+      for (let i = seg[0]; i <= seg[1]; i++) {
+        if (oddOnly && i % 2 === 0) continue;
+        if (evenOnly && i % 2 === 1) continue;
+        res.add(i);
+      }
+    } else if (p) {
+      res.add(Number(p));
+    }
+  });
+  return res;
+}
+
+function simplifyWeeks(str) {
+  return str.replace(/\s+/g, '').replace(/周/g, '').replace(/,/g, '、') + '周';
+}
+
+function colorOf(name) {
+  for (const [n, bg, bd] of colorDefs) {
+    if (n === name) return [bg, bd];
+  }
+  return ['#F5F5F5', '#9E9E9E'];
+}
+
+function fmtDate(d) {
+  return d.getFullYear() + '-' +
+    String(d.getMonth() + 1).padStart(2, '0') + '-' +
+    String(d.getDate()).padStart(2, '0');
+}
+
+function weekRange(week) {
+  const mon = new Date(START_DATE);
+  mon.setDate(START_DATE.getDate() + (week - 1) * 7);
+  const sun = new Date(mon);
+  sun.setDate(mon.getDate() + 6);
+  return fmtDate(mon) + ' ～ ' + fmtDate(sun) + '（周一 ～ 周日）';
+}
+
+function courseBlock(c) {
+  const [bg, bd] = colorOf(c.n);
+  const div = document.createElement('div');
+  div.className = 'course';
+  div.style.background = bg;
+  div.style.borderLeftColor = bd;
+  div.innerHTML =
+    '<div class="c-name"></div>' +
+    '<div class="c-info"></div>' +
+    '<div class="c-weeks"></div>';
+  div.querySelector('.c-name').textContent = c.n;
+  div.querySelector('.c-info').textContent = c.p + ' · ' + c.t;
+  div.querySelector('.c-weeks').textContent = simplifyWeeks(c.w);
+  return div;
+}
+
+function render(week) {
+  currentWeek = week;
+  document.getElementById('weekLabel').textContent = '第 ' + week + ' 周';
+  document.getElementById('weekRange').textContent = weekRange(week);
+  document.getElementById('weekSelect').value = week;
+  document.getElementById('prevBtn').disabled = (currentWeek <= 1);
+  document.getElementById('nextBtn').disabled = (currentWeek >= TOTAL_WEEKS);
+
+  const prac = practice.filter(p => p.week === week);
+  const banner = document.getElementById('pracBanner');
+  if (prac.length) {
+    banner.innerHTML = prac.map(p =>
+      '<div class="prac-item">🔧 本周实践：<b>' + p.name + '</b>（指导教师：' + p.teacher + '）</div>'
+    ).join('');
+    banner.style.display = 'block';
+  } else {
+    banner.style.display = 'none';
+  }
+
+  const tbody = document.getElementById('gridBody');
+  tbody.innerHTML = '';
+  sections.forEach(sec => {
+    const tr = document.createElement('tr');
+    const th = document.createElement('td');
+    th.className = 'sec-label';
+    th.innerHTML =
+      '<div class="sec-name">' + sec.label + '</div>' +
+      '<div class="period">' + sec.period + '</div>';
+    tr.appendChild(th);
+
+    for (let d = 1; d <= 5; d++) {
+      const td = document.createElement('td');
+      const hits = courses.filter(c =>
+        c.d === d && c.s[0] === sec.start && c.s[1] === sec.end && c.weeksSet.has(week)
+      );
+      if (hits.length) {
+        hits.forEach(c => td.appendChild(courseBlock(c)));
+      } else {
+        td.innerHTML = '<div class="empty">—</div>';
+      }
+      tr.appendChild(td);
+    }
+    tbody.appendChild(tr);
+  });
+}
+
+function init() {
+  courses.forEach(c => { c.weeksSet = parseWeeks(c.w); });
+
+  const select = document.getElementById('weekSelect');
+  for (let i = 1; i <= TOTAL_WEEKS; i++) {
+    const opt = document.createElement('option');
+    opt.value = i;
+    let label = '第 ' + i + ' 周';
+    const p = practice.find(x => x.week === i);
+    if (p) label += '（' + p.name + '）';
+    opt.textContent = label;
+    select.appendChild(opt);
+  }
+
+  document.getElementById('prevBtn').addEventListener('click', () => {
+    if (currentWeek > 1) render(currentWeek - 1);
+  });
+  document.getElementById('nextBtn').addEventListener('click', () => {
+    if (currentWeek < TOTAL_WEEKS) render(currentWeek + 1);
+  });
+  select.addEventListener('change', e => render(Number(e.target.value)));
+
+  const names = [...new Set(courses.map(c => c.n))];
+  document.getElementById('legendItems').innerHTML = names.map(n => {
+    const [bg, bd] = colorOf(n);
+    return '<span class="legend-item"><span class="dot" style="background:' + bd + '"></span>' + n + '</span>';
+  }).join('');
+
+  render(1);
+}
+
+init();
+</script>
+</body>
+</html>
