@@ -56,6 +56,7 @@
   .admin-toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:10px 0;}
   .admin-toolbar select,.admin-toolbar button{padding:8px 10px;border:1px solid #c9d3e0;border-radius:8px;background:#fff;font-size:13px;}
   .admin-toolbar button{background:#eef3fa;cursor:pointer;}
+  .stat-box{font-size:13px;color:#556;margin:8px 0;background:#f7f9fc;border:1px solid #e3e8f0;border-radius:8px;padding:8px 10px;}
   .course-form{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;background:#f7f9fc;border:1px solid #e3e8f0;border-radius:10px;padding:12px;margin:10px 0;}
   .course-form input,.course-form select{padding:8px;border:1px solid #c9d3e0;border-radius:8px;font-size:13px;width:100%;}
   .course-form .form-actions{display:flex;gap:8px;align-items:center;}
@@ -140,6 +141,11 @@
         <button id="reloadDefaultBtn">恢复默认课表</button>
       </div>
 
+      <div class="stat-box">
+        📊 本站总访问量：<span id="busuanzi_value_site_pv">加载中…</span> 次 ·
+        访客：<span id="busuanzi_value_site_uv">加载中…</span> 人
+      </div>
+
       <div class="course-form" id="courseForm" style="display:none">
         <input id="f_name" placeholder="课程名">
         <select id="f_day">
@@ -185,7 +191,7 @@
 const START_DATE = new Date(2026, 7, 31);
 const TOTAL_WEEKS = 20;
 const DAYS = [1,2,3,4,5,6,7];
-const ADMIN_PASSWORD = '114514'; // ★管理密码：想改密码就改这里
+const ADMIN_PASSWORD = '******'; // ★管理密码：想改密码就改这里
 const STORE_KEY = 'kb_data_v1';
 
 /* ★调课通用文案：改这里可统一改所有班的补课说明 */
@@ -487,6 +493,20 @@ function weekRange(week){
   sun.setDate(mon.getDate()+6);
   return fmtDate(mon)+' ～ '+fmtDate(sun)+'（周一 ～ 周日）';
 }
+function getTodayWeek(){
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const start = new Date(START_DATE.getFullYear(), START_DATE.getMonth(), START_DATE.getDate());
+  const diff = Math.round((today - start) / 86400000);
+  if(diff < 0) return 1;
+  const week = Math.floor(diff / 7) + 1;
+  if(week > TOTAL_WEEKS) return TOTAL_WEEKS;
+  return week;
+}
+function getTodayDay(){
+  const d = new Date().getDay(); // 0=周日 1=周一 ... 6=周六
+  return d === 0 ? 7 : d;
+}
 function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
 
 /* 存储 */
@@ -500,8 +520,10 @@ function getClassData(key){
 }
 
 /* 主课表 */
-let currentWeek = 1;
+let currentWeek = getTodayWeek();
 let currentClassKey = 'dq';
+let todayWeek = getTodayWeek();
+let todayDay = getTodayDay();
 
 function render(){
   const data = getClassData(currentClassKey);
@@ -527,6 +549,15 @@ function render(){
   const courses = data.courses.map(c=>({...c, weeksSet: parseWeeks(c.w)}));
   const tbody = document.getElementById('gridBody');
   tbody.innerHTML = '';
+  document.querySelectorAll('thead th').forEach((th,idx)=>{
+    if(idx === todayDay && currentWeek === todayWeek){
+      th.style.background = '#fff3b0';
+    } else if(idx === 6 || idx === 7){
+      th.style.background = '#fbf3e6';
+    } else {
+      th.style.background = '#f0f4f9';
+    }
+  });
   sections.forEach(sec=>{
     const tr = document.createElement('tr');
     const th = document.createElement('td');
@@ -536,6 +567,7 @@ function render(){
     DAYS.forEach(d=>{
       const td = document.createElement('td');
       if(d>=6) td.style.background = '#fffcf6';
+      if(currentWeek === todayWeek && d === todayDay) td.style.background = '#fff9c4';
       const hits = courses.filter(c=>c.d===d && c.s[0]===sec.start && c.s[1]===sec.end && c.weeksSet.has(currentWeek));
       if(hits.length){
         hits.forEach(c=>{
@@ -773,5 +805,6 @@ function initAdmin(){
 init();
 initAdmin();
 </script>
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 </body>
 </html>
