@@ -116,7 +116,9 @@
   </div>
 
   <footer>
-    数据来源：各班课表 · <a href="javascript:void(0)" id="adminLink">管理</a>
+    数据来源：各班课表 ·
+    <a href="javascript:void(0)" id="adminLink">管理</a> ·
+    <a href="javascript:void(0)" id="disclaimerLink" style="color:#98a2b3;">免责声明</a>
   </footer>
 </div>
 
@@ -175,6 +177,27 @@
           <button id="importBtn">从文本框导入</button>
         </details>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- 免责声明模态框 -->
+<div class="modal" id="disclaimerModal">
+  <div class="modal-box" style="max-width:640px;">
+    <div class="modal-head">
+      <b>免责声明</b>
+      <button id="disclaimerClose">&times;</button>
+    </div>
+    <div style="font-size:14px;line-height:1.9;color:#333;">
+      <p>本网站为本人<b>自愿制作</b>的课表查询网站，仅用于方便同学查询课程安排，不收取任何费用，不用于任何商业用途。</p>
+      <p>课表数据来源于公开课表整理，<b>仅供参考</b>。实际上课时间、地点、周次可能因学校调课、临时通知、节假日安排等原因发生变化，<b>请务必以学校官方通知为准</b>。</p>
+      <p>因使用本网站信息（包括但不限于看错时间、走错教室、错过调课、课程变动、临时停课等）造成的任何直接或间接损失，<b>本网站及制作者不承担任何责任</b>。</p>
+      <p>本网站不收集任何个人隐私信息；访问统计仅用于了解网站访问量，不涉及个人身份信息。</p>
+      <p>如发现课表有误，或需要<b>添加、修改课表</b>，请将课表文档发送至下方邮箱：</p>
+      <div style="text-align:center;margin:14px 0;">
+        <a href="mailto:1342028520@qq.com" style="font-size:18px;font-weight:800;color:#c0392b;background:#fff5f5;border:1px dashed #e0a0a0;border-radius:10px;padding:10px 18px;display:inline-block;text-decoration:none;">📮 1342028520@qq.com</a>
+      </div>
+      <p style="color:#889;font-size:12px;text-align:center;">添加或修改课表请发课表文档（Excel / Word / 图片均可）到上方邮箱</p>
     </div>
   </div>
 </div>
@@ -431,6 +454,43 @@ const CLASS_DATA = {
       {n:'大学体育Ⅰ',d:7,s:[5,6],w:'3周',p:'新校区运动场',t:'郑菱婕',note:BUKE_NOTE},
       {n:'高职英语Ⅰ',d:7,s:[9,10],w:'3周',p:'新D301',t:'田小霞',note:BUKE_NOTE}
     ]
+  },
+  /* ═══════════ 铁道信号2604 ═══════════ */
+  xh2604: {
+    name:'铁道信号2604', major:'铁道信号自动控制',
+    practice:[
+      {name:'电工技能实训',teacher:'黄刚、蔡辉',week:16},
+      {name:'专业认知实习I',teacher:'黄应超',week:12}
+    ],
+    notices:[BUKE_NOTICE], /* ★调课公告 */
+    courses:[
+      {n:'高职英语Ⅰ',d:1,s:[3,4],w:'3-11周,13-15周,17-18周',p:'新C308',t:'马玉玲'},
+      {n:'信息技术',d:1,s:[5,6],w:'3-11周,13周',p:'D204计算机实训室5',t:'曾光'},
+      {n:'信息技术',d:1,s:[5,6],w:'14-15周,17-18周',p:'D204计算机实训室5',t:'曾光'},
+      {n:'信息技术',d:1,s:[7,8],w:'3-11周,13周',p:'D204计算机实训室5',t:'曾光'},
+      {n:'思想道德与法治',d:1,s:[9,10],w:'3-11周,13-15周,17-18周',p:'新C407',t:'王梦莹'},
+      {n:'高等数学Ⅰ',d:2,s:[1,2],w:'3-4周',p:'新B203-1',t:'魏盈盈'},
+      {n:'大学生安全教育Ⅰ',d:2,s:[1,2],w:'5周,7-8周',p:'新C404',t:'何清清'},
+      {n:'形势与政策Ⅰ',d:2,s:[1,2],w:'10-11周',p:'新B201',t:'朱润涵'},
+      {n:'铁道概论（含城轨）',d:2,s:[3,4],w:'3-5周,7-11周,13-15周,17-18周',p:'新C404',t:'何杨杨'},
+      {n:'电工技术',d:2,s:[5,6],w:'3-4周',p:'新B102',t:'董家兴'},
+      {n:'电工技术',d:2,s:[5,6],w:'5周',p:'新D409',t:'董家兴'},
+      {n:'大学体育Ⅰ',d:2,s:[5,6],w:'17周',p:'新校区运动场',t:'刘衡'},
+      {n:'职业发展与就业指导(含专业认知）（上）',d:2,s:[7,8],w:'3-5周',p:'新B205-2',t:'曾科'},
+      {n:'思想道德与法治',d:2,s:[7,8],w:'7-11周,13-15周,17-18周',p:'新C408',t:'王梦莹'},
+      {n:'高职英语Ⅰ',d:3,s:[1,2],w:'3-11周,13周',p:'新C309',t:'马玉玲'},
+      {n:'铁道概论（含城轨）',d:3,s:[3,4],w:'7-8周',p:'新B201',t:'何杨杨'},
+      {n:'高等数学Ⅰ',d:4,s:[1,2],w:'3-11周,13-15周,17-18周',p:'新D306',t:'魏盈盈'},
+      {n:'大学体育Ⅰ',d:4,s:[3,4],w:'3-11周,13-15周,17-18周',p:'新校区运动场',t:'刘衡'},
+      {n:'电工技术',d:4,s:[9,10],w:'3-11周,13-15周,17-18周',p:'新C308',t:'董家兴'},
+      {n:'大学生心理健康教育',d:5,s:[1,2],w:'3-10周',p:'新C402',t:'罗雪梅'},
+      {n:'电工技术',d:5,s:[3,4],w:'3-11周,13-15周,17-18周',p:'新B205-2',t:'董家兴'},
+      {n:'大学体育Ⅰ',d:5,s:[5,6],w:'5周',p:'新校区运动场',t:'刘衡'},
+      {n:'大学生安全教育Ⅰ',d:7,s:[1,2],w:'3周',p:'新C404',t:'何清清',note:BUKE_NOTE},
+      {n:'铁道概论（含城轨）',d:7,s:[3,4],w:'3周',p:'新C404',t:'何杨杨',note:BUKE_NOTE},
+      {n:'电工技术',d:7,s:[5,6],w:'3周',p:'新D308',t:'董家兴',note:BUKE_NOTE},
+      {n:'职业发展与就业指导(含专业认知）（上）',d:7,s:[7,8],w:'3周',p:'新B205-2',t:'曾科',note:BUKE_NOTE}
+    ]
   }
 };
 
@@ -451,7 +511,10 @@ const colorDefs = [
   ['应急管理概论','#D5E8D4','#2E7D32'],
   ['测绘基础','#E0F2F1','#00796B'],
   ['机械识图与制图（含CAD）','#F3E5F5','#7B1FA2'],
-  ['无人机导论与飞行法规','#E1F5FE','#0277BD']
+  ['无人机导论与飞行法规','#E1F5FE','#0277BD'],
+  ['信息技术','#E1F5FE','#0288D1'],
+  ['铁道概论（含城轨）','#F9FBE7','#827717'],
+  ['电工技术','#ECEFF1','#455A64']
 ];
 
 /* ★上下课时间：以后改时间只改这里；timeFri=周五特殊时间 */
@@ -804,6 +867,12 @@ function initAdmin(){
 
 init();
 initAdmin();
+document.getElementById('disclaimerLink').addEventListener('click', ()=>{
+  document.getElementById('disclaimerModal').style.display = 'block';
+});
+document.getElementById('disclaimerClose').addEventListener('click', ()=>{
+  document.getElementById('disclaimerModal').style.display = 'none';
+});
 </script>
 <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 </body>
