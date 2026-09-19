@@ -5,74 +5,68 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>课程表 · 多班级周视图</title>
 <style>
-  :root{--border:#d7dde8;--bg:#f5f7fa;--text:#2b3442;}
-  *{box-sizing:border-box;margin:0;padding:0;}
-  body{font-family:"PingFang SC","Microsoft YaHei",system-ui,sans-serif;background:var(--bg);color:var(--text);padding:16px;}
-  .wrap{max-width:1220px;margin:0 auto;background:#fff;border:1px solid var(--border);border-radius:14px;padding:20px;box-shadow:0 4px 18px rgba(0,0,0,.05);position:relative;z-index:2;}
-  header{text-align:center;margin-bottom:14px;}
-  header h1{font-size:21px;margin-bottom:4px;}
-  header .sub{font-size:12px;color:#68758a;}
-  .toolbar{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px;margin:14px 0;}
-  .toolbar select,.toolbar button{border:1px solid #c9d3e0;background:#fff;border-radius:8px;padding:8px 10px;font-size:14px;}
-  .toolbar button{cursor:pointer;}
-  .toolbar button:hover:not(:disabled){background:#eef3fa;}
-  .toolbar button:disabled{opacity:.4;cursor:not-allowed;}
-  .week-label{font-weight:700;font-size:16px;min-width:70px;text-align:center;}
-  .range{text-align:center;font-size:12px;color:#68758a;margin-bottom:6px;}
-  .notice{display:none;background:#eef4ff;border:1px solid #bcd0f5;border-radius:10px;padding:8px 12px;margin:8px 0;font-size:13px;color:#2b4a8b;text-align:center;}
-  .prac-banner{display:none;background:#fff8e1;border:1px solid #f0d060;border-radius:10px;padding:10px 14px;margin:10px 0;font-size:13px;}
-  .table-wrap{overflow-x:auto;margin-top:10px;}
-  table{border-collapse:collapse;width:100%;min-width:1010px;}
-  th,td{border:1px solid var(--border);padding:7px;vertical-align:top;}
-  thead th{background:#f0f4f9;font-size:13px;padding:9px 6px;}
-  thead th.wknd{background:#fbf3e6;color:#9a6a00;}
-  .sec-label{background:#f8fafc;text-align:center;width:92px;font-size:12px;color:#556;}
-  .sec-name{font-weight:700;font-size:12px;}
-  .period{font-size:11px;color:#98a2b3;margin-top:2px;}
-  .course{border-left:4px solid;border-radius:8px;padding:7px 8px;margin-bottom:5px;box-shadow:0 1px 3px rgba(0,0,0,.06);}
-  .course:last-child{margin-bottom:0;}
-  .c-name{font-weight:700;font-size:12.5px;line-height:1.35;}
-  .c-info{font-size:11.5px;color:#455;margin-top:3px;}
-  .c-weeks{font-size:11px;color:#8a94a6;margin-top:3px;}
-  .c-note{font-size:11px;color:#b06a00;margin-top:3px;font-weight:600;}
-  .empty{color:#c2cad6;text-align:center;font-size:12px;padding:6px 0;}
-  .legend{margin-top:14px;font-size:12px;color:#556;}
-  .legend-title{font-weight:700;margin-bottom:6px;}
-  .legend-items{display:flex;flex-wrap:wrap;gap:6px;}
-  .legend-item{display:inline-flex;align-items:center;gap:5px;background:#f7f9fc;border:1px solid #e3e8f0;border-radius:999px;padding:3px 9px;}
-  .dot{width:9px;height:9px;border-radius:3px;display:inline-block;}
-  footer{margin-top:14px;font-size:12px;color:#98a2b3;text-align:center;}
-  footer a{color:#4a78c2;text-decoration:none;font-weight:700;}
-  #watermark{position:fixed;inset:0;pointer-events:none;z-index:9999;overflow:hidden;}
-  #watermark span{position:absolute;font-size:13px;color:rgba(0,0,0,.04);transform:rotate(-22deg);user-select:none;}
-  .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:50;overflow:auto;padding:16px;}
-  .modal-box{max-width:880px;margin:16px auto;background:#fff;border-radius:14px;padding:18px;position:relative;z-index:51;}
-  .modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
-  .modal-head button{border:none;background:none;font-size:24px;cursor:pointer;color:#889;}
-  .login-area{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
-  .login-area input{flex:1;min-width:180px;padding:9px;border:1px solid #c9d3e0;border-radius:8px;font-size:14px;}
-  .login-area button{padding:9px 16px;background:#2b4a8b;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer;}
-  .login-err{color:#c0392b;font-size:12px;margin-top:6px;}
-  .admin-toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:10px 0;}
-  .admin-toolbar select,.admin-toolbar button{padding:8px 10px;border:1px solid #c9d3e0;border-radius:8px;background:#fff;font-size:13px;}
-  .admin-toolbar button{background:#eef3fa;cursor:pointer;}
-  .stat-box{font-size:13px;color:#556;margin:8px 0;background:#f7f9fc;border:1px solid #e3e8f0;border-radius:8px;padding:8px 10px;}
-  .course-form{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;background:#f7f9fc;border:1px solid #e3e8f0;border-radius:10px;padding:12px;margin:10px 0;}
-  .course-form input,.course-form select{padding:8px;border:1px solid #c9d3e0;border-radius:8px;font-size:13px;width:100%;}
-  .course-form .form-actions{display:flex;gap:8px;align-items:center;}
-  .course-form .form-actions button{padding:8px 14px;border-radius:8px;border:none;cursor:pointer;font-size:13px;}
-  #formSave{background:#2b4a8b;color:#fff;}
-  #formCancel{background:#e3e8f0;color:#333;}
-  .course-list{margin-top:10px;}
-  .course-row{display:flex;justify-content:space-between;align-items:center;gap:8px;border:1px solid #e3e8f0;border-radius:8px;padding:7px 10px;margin-bottom:5px;font-size:13px;background:#fff;}
-  .course-row .txt{flex:1;}
-  .course-row .btns{display:flex;gap:6px;}
-  .course-row button{border:1px solid #c9d3e0;background:#fff;border-radius:6px;padding:5px 10px;font-size:12px;cursor:pointer;}
-  .course-row .del{color:#c0392b;border-color:#f0c0b8;}
-  .io-area{margin-top:10px;}
-  .io-area textarea{width:100%;height:80px;font-size:11px;padding:6px;border:1px solid #c9d3e0;border-radius:8px;}
-  .io-area button{padding:6px 12px;border:1px solid #c9d3e0;background:#fff;border-radius:8px;font-size:12px;cursor:pointer;margin-top:4px;}
-  @media (max-width:600px){.wrap{padding:10px;}header h1{font-size:18px;}}
+:root{--bd:#d7dde8;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:"PingFang SC","Microsoft YaHei",system-ui,sans-serif;background:#f5f7fa;color:#2b3442;padding:16px;}
+.wrap{max-width:1220px;margin:0 auto;background:#fff;border:1px solid var(--bd);border-radius:14px;padding:20px;box-shadow:0 4px 18px rgba(0,0,0,.05);position:relative;z-index:2;}
+header{text-align:center;margin-bottom:14px;}
+header h1{font-size:21px;margin-bottom:4px;}
+header .sub{font-size:12px;color:#68758a;}
+.toolbar{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px;margin:14px 0;}
+.toolbar select,.toolbar button{border:1px solid #c9d3e0;background:#fff;border-radius:8px;padding:8px 10px;font-size:14px;}
+.toolbar button{cursor:pointer;}
+.toolbar button:disabled{opacity:.4;cursor:not-allowed;}
+.week-label{font-weight:700;font-size:16px;min-width:70px;text-align:center;}
+.range{text-align:center;font-size:12px;color:#68758a;margin-bottom:6px;}
+.notice{display:none;background:#eef4ff;border:1px solid #bcd0f5;border-radius:10px;padding:8px 12px;margin:8px 0;font-size:13px;color:#2b4a8b;text-align:center;white-space:pre-line;}
+.prac-banner{display:none;background:#fff8e1;border:1px solid #f0d060;border-radius:10px;padding:10px 14px;margin:10px 0;font-size:13px;}
+.table-wrap{overflow-x:auto;margin-top:10px;}
+table{border-collapse:collapse;width:100%;min-width:1010px;}
+th,td{border:1px solid var(--bd);padding:7px;vertical-align:top;}
+thead th{background:#f0f4f9;font-size:13px;padding:9px 6px;}
+thead th.wknd{background:#fbf3e6;color:#9a6a00;}
+.sec-label{background:#f8fafc;text-align:center;width:92px;font-size:12px;color:#556;}
+.sec-name{font-weight:700;font-size:12px;}
+.period{font-size:11px;color:#98a2b3;margin-top:2px;}
+.course{border-left:4px solid;border-radius:8px;padding:7px 8px;margin-bottom:5px;box-shadow:0 1px 3px rgba(0,0,0,.06);cursor:pointer;position:relative;}
+.course:last-child{margin-bottom:0;}
+.course.local{border-left-style:dashed;}
+.course.local::after{content:'✎本地修改';position:absolute;top:2px;right:4px;font-size:10px;color:#fff;background:#e67e22;border-radius:3px;padding:1px 4px;font-weight:700;}
+.c-name{font-weight:700;font-size:12.5px;line-height:1.35;padding-right:58px;}
+.c-info{font-size:11.5px;color:#455;margin-top:3px;}
+.c-weeks{font-size:11px;color:#8a94a6;margin-top:3px;}
+.c-note{font-size:11px;color:#b06a00;margin-top:3px;font-weight:600;}
+.empty{color:#c2cad6;text-align:center;font-size:12px;padding:6px 0;cursor:pointer;}
+.legend{margin-top:14px;font-size:12px;color:#556;}
+.legend-title{font-weight:700;margin-bottom:6px;}
+.legend-items{display:flex;flex-wrap:wrap;gap:6px;}
+.legend-item{display:inline-flex;align-items:center;gap:5px;background:#f7f9fc;border:1px solid #e3e8f0;border-radius:999px;padding:3px 9px;}
+.dot{width:9px;height:9px;border-radius:3px;display:inline-block;}
+footer{margin-top:14px;font-size:12px;color:#98a2b3;text-align:center;}
+footer a{color:#4a78c2;text-decoration:none;font-weight:700;}
+#watermark{position:fixed;inset:0;pointer-events:none;z-index:9999;overflow:hidden;}
+#watermark span{position:absolute;font-size:13px;color:rgba(0,0,0,.04);transform:rotate(-22deg);user-select:none;}
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:50;overflow:auto;padding:16px;}
+.modal-box{max-width:640px;margin:16px auto;background:#fff;border-radius:14px;padding:18px;position:relative;z-index:51;}
+.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+.modal-head button{border:none;background:none;font-size:24px;cursor:pointer;color:#889;}
+.login-area{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+.login-area input{flex:1;min-width:180px;padding:9px;border:1px solid #c9d3e0;border-radius:8px;font-size:14px;}
+.login-area button{padding:9px 16px;background:#2b4a8b;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer;}
+.login-err{color:#c0392b;font-size:12px;margin-top:6px;}
+.stat-box{font-size:13px;color:#556;margin:8px 0;background:#f7f9fc;border:1px solid #e3e8f0;border-radius:8px;padding:8px 10px;}
+.hint{margin:8px 0;font-size:12px;color:#8a6d3b;background:#fffbe6;border:1px solid #f0d060;border-radius:8px;padding:6px 10px;}
+.admin-toolbar{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0;}
+.admin-toolbar button{padding:8px 10px;border:1px solid #c9d3e0;border-radius:8px;background:#eef3fa;font-size:13px;cursor:pointer;}
+.course-form{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;background:#f7f9fc;border:1px solid #e3e8f0;border-radius:10px;padding:12px;}
+.course-form input{padding:8px;border:1px solid #c9d3e0;border-radius:8px;font-size:13px;width:100%;}
+.course-form .form-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.course-form .form-actions button{padding:8px 14px;border-radius:8px;border:none;cursor:pointer;font-size:13px;}
+#cellSave{background:#2b4a8b;color:#fff;}
+#cellClear{background:#e67e22;color:#fff;}
+#cellClearLocal{background:#c0392b;color:#fff;}
+#cellCancel{background:#e3e8f0;color:#333;}
+@media (max-width:600px){.wrap{padding:10px;}header h1{font-size:18px;}}
 </style>
 </head>
 <body>
@@ -82,39 +76,30 @@
     <h1>课程表 · 按周查看</h1>
     <div class="sub">2026-2027学年 第1学期 · 共20周（2026-08-31 至 2027-01-15）</div>
   </header>
-
-  <div class="toolbar">
-    <select id="classSelect"></select>
-  </div>
+  <div class="toolbar"><select id="classSelect"></select></div>
   <div class="toolbar">
     <button id="prevBtn">‹ 上一周</button>
     <div class="week-label" id="weekLabel">第 1 周</div>
     <button id="nextBtn">下一周 ›</button>
     <select id="weekSelect"></select>
   </div>
-
   <div class="range" id="weekRange"></div>
   <div class="notice" id="noticeArea"></div>
   <div class="prac-banner" id="pracBanner"></div>
-
   <div class="table-wrap">
     <table>
-      <thead>
-        <tr>
-          <th>节次</th>
-          <th>星期一</th><th>星期二</th><th>星期三</th><th>星期四</th><th>星期五</th>
-          <th class="wknd">星期六</th><th class="wknd">星期日</th>
-        </tr>
-      </thead>
+      <thead><tr>
+        <th>节次</th>
+        <th>星期一</th><th>星期二</th><th>星期三</th><th>星期四</th><th>星期五</th>
+        <th class="wknd">星期六</th><th class="wknd">星期日</th>
+      </tr></thead>
       <tbody id="gridBody"></tbody>
     </table>
   </div>
-
   <div class="legend">
     <div class="legend-title">课程图例</div>
     <div class="legend-items" id="legendItems"></div>
   </div>
-
   <footer>
     数据来源：各班课表 ·
     <a href="javascript:void(0)" id="adminLink">管理</a> ·
@@ -122,76 +107,57 @@
   </footer>
 </div>
 
-<!-- 管理模态框 -->
 <div class="modal" id="adminModal">
   <div class="modal-box">
-    <div class="modal-head">
-      <b>课表管理（调课）</b>
-      <button id="adminClose">&times;</button>
-    </div>
-
+    <div class="modal-head"><b>课表管理</b><button id="adminClose">&times;</button></div>
     <div class="login-area" id="loginArea">
       <input type="password" id="pwdInput" placeholder="请输入管理密码">
       <button id="loginBtn">登录</button>
     </div>
     <div class="login-err" id="loginErr"></div>
-
+    <div class="hint" id="loginHint" style="display:none;"></div>
     <div id="adminArea" style="display:none">
+      <div class="hint" id="roleHint" style="display:none;"></div>
+      <div class="stat-box" id="statBox" style="display:none">
+        📊 总访问量：<span id="busuanzi_value_site_pv">加载中…</span> 次　·
+        总访客：<span id="busuanzi_value_site_uv">加载中…</span> 人
+      </div>
       <div class="admin-toolbar">
-        <select id="adminClassSelect"></select>
-        <button id="addCourseBtn">+ 添加课程</button>
-        <button id="reloadDefaultBtn">恢复默认课表</button>
-      </div>
-
-      <div class="stat-box">
-        📊 本站总访问量：<span id="busuanzi_value_site_pv">加载中…</span> 次
-      </div>
-
-      <div class="course-form" id="courseForm" style="display:none">
-        <input id="f_name" placeholder="课程名">
-        <select id="f_day">
-          <option value="1">周一</option><option value="2">周二</option><option value="3">周三</option>
-          <option value="4">周四</option><option value="5">周五</option><option value="6">周六</option><option value="7">周日</option>
-        </select>
-        <input id="f_s1" type="number" min="1" max="10" placeholder="开始节(1-10)">
-        <input id="f_s2" type="number" min="1" max="10" placeholder="结束节(1-10)">
-        <input id="f_weeks" placeholder="周次，如3-7周,10-11周">
-        <input id="f_place" placeholder="地点">
-        <input id="f_teacher" placeholder="教师">
-        <input id="f_note" placeholder="备注(可选)">
-        <div class="form-actions">
-          <button id="formSave">保存</button>
-          <button id="formCancel">取消</button>
-        </div>
-        <input type="hidden" id="f_editIndex" value="-1">
-      </div>
-
-      <div class="course-list" id="adminCourseList"></div>
-
-      <div class="io-area">
-        <details>
-          <summary>导出 / 导入修改数据（换设备时用）</summary>
-          <textarea id="ioArea" placeholder='这里会显示导出的JSON，也可以粘贴JSON后点导入'></textarea>
-          <button id="exportBtn">导出到文本框</button>
-          <button id="importBtn">从文本框导入</button>
-        </details>
+        <button id="reloadDefaultBtn">恢复官方课表（清掉自己的本地改动）</button>
       </div>
     </div>
   </div>
 </div>
 
-<!-- 免责声明模态框 -->
-<div class="modal" id="disclaimerModal">
-  <div class="modal-box" style="max-width:640px;">
-    <div class="modal-head">
-      <b>免责声明</b>
-      <button id="disclaimerClose">&times;</button>
+<div class="modal" id="cellModal">
+  <div class="modal-box">
+    <div class="modal-head"><b id="cellTitle">编辑课程</b><button id="cellClose">&times;</button></div>
+    <div class="course-form">
+      <input id="c_name" placeholder="课程名（留空=无课）">
+      <input id="c_place" placeholder="地点">
+      <input id="c_teacher" placeholder="教师">
+      <input id="c_weeks" placeholder="周次，如3-7,10-11">
+      <div class="form-actions">
+        <button id="cellSave">保存</button>
+        <button id="cellClear">设为无课</button>
+        <button id="cellClearLocal">还原为官方课表</button>
+        <button id="cellCancel">取消</button>
+      </div>
     </div>
+    <div class="hint" style="margin-top:10px;">改动仅保存在你自己的浏览器，不影响其他同学。点「还原为官方课表」可撤销。</div>
+  </div>
+</div>
+
+<div class="modal" id="disclaimerModal">
+  <div class="modal-box">
+    <div class="modal-head"><b>免责声明</b><button id="disclaimerClose">&times;</button></div>
     <div style="font-size:14px;line-height:1.9;color:#333;">
       <p>本网站为本人<b>自愿制作</b>的课表查询网站，仅用于方便同学查询课程安排，不收取任何费用，不用于任何商业用途。</p>
       <p>课表数据来源于公开课表整理，<b>仅供参考</b>。实际上课时间、地点、周次可能因学校调课、临时通知、节假日安排等原因发生变化，<b>请务必以学校官方通知为准</b>。</p>
       <p>因使用本网站信息（包括但不限于看错时间、走错教室、错过调课、课程变动、临时停课等）造成的任何直接或间接损失，<b>本网站及制作者不承担任何责任</b>。</p>
-      <p>本网站不收集任何个人隐私信息；访问统计仅用于了解网站访问量，不涉及个人身份信息。</p>
+      <p>本网站不收集任何个人隐私信息；访问统计仅用于了解网站访问量。</p>
+      <p><b>【本地调课说明】</b>本站「本地调课」功能面向所有同学：点击页面底部的「<b>管理</b>」，输入密码 <b>1234</b>，即进入本地调课模式；然后<b>点击课表中任意格子</b>，即可修改该格的课程名 / 地点 / 教师 / 周次，也可选择「设为无课」。点格子里的「还原为官方课表」即可撤销。</p>
+      <p>本地调课的所有改动<b>仅保存在你自己的浏览器中</b>，不会影响其他同学看到的课表，也不会修改本站官方数据；更换设备、清除浏览器数据或使用无痕模式时，本地改动会丢失。</p>
       <p>如发现课表有误，或需要<b>添加、修改课表</b>，请将课表文档发送至下方邮箱：</p>
       <div style="text-align:center;margin:14px 0;">
         <a href="mailto:yeherui520@qq.com" style="font-size:18px;font-weight:800;color:#c0392b;background:#fff5f5;border:1px dashed #e0a0a0;border-radius:10px;padding:10px 18px;display:inline-block;text-decoration:none;">📮 yeherui520@qq.com</a>
@@ -202,676 +168,493 @@
 </div>
 
 <script>
-/* ═══════════════════════════════════════════════════════════
-   ★★★ 调课快速指南（以后调课只需要改下面 3 个地方）★★★
-   ① 调课公告：改各班的 notices 数组
-   ② 课程本身：改各班的 courses 数组（增、删、改行）
-   ③ 上下课时间：改 sections 数组
-   所有调课相关位置都用 ★ 号标注，搜索 ★ 即可快速找到
-   ═══════════════════════════════════════════════════════════ */
+/* ═══ 数据层：将来接服务器只需改 loadData/saveData ═══ */
+const STORE_KEY='kb_data_v2';
+function loadData(){try{return JSON.parse(localStorage.getItem(STORE_KEY))||{};}catch(e){return {};}}
+function saveData(all){localStorage.setItem(STORE_KEY,JSON.stringify(all));}
 
-const START_DATE = new Date(2026, 7, 31);
-const TOTAL_WEEKS = 20;
-const DAYS = [1,2,3,4,5,6,7];
-const ADMIN_PASSWORD = '******'; // ★管理密码：想改密码就改这里
-const STORE_KEY = 'kb_data_v1';
+const START_DATE=new Date(2026,7,31);
+const TOTAL_WEEKS=20;
+const DAYS=[1,2,3,4,5,6,7];
+const ADMIN_PASSWORD='******'; // ★超级：调课+统计
+const LOCAL_PASSWORD='1234';   // ★本地：只调课
+let loginRole='';
+let currentWeek=getTodayWeek(),currentClassKey='dq',todayWeek=getTodayWeek(),todayDay=getTodayDay();
 
-/* ★调课通用文案：改这里可统一改所有班的补课说明 */
-const BUKE_NOTE = '补10月6日（第6周周二）';
-const BUKE_NOTICE = '调课：9月20日（第3周周日）补上 10月6日（第6周周二）的课程';
+/* ★全局公告：改这一处，所有班生效 */
+const BUKE_NOTE='补10月6日（第6周周二）';
+const BUKE_NOTICE='调课：9月20日（第3周周日）补上 10月6日（第6周周二）的课程。';
+const GLOBAL_NOTICE='📌 '+BUKE_NOTICE;
 
-const CLASS_DATA = {
-  /* ═══════════ 道路桥梁2601 ═══════════ */
-  dq: {
-    name:'道路桥梁2601', major:'道路与桥梁工程技术',
-    practice:[{name:'认识实习',teacher:'杨义辉',week:9},{name:'工程测量实训',teacher:'冉凌',week:16}],
-    notices:[BUKE_NOTICE], /* ★调课公告 */
-    courses:[
-      {n:'高职英语Ⅰ',d:1,s:[1,2],w:'3-7周,10-11周,13-15周,17-18周',p:'新D304',t:'田小霞'},
-      {n:'工程制图',d:1,s:[3,4],w:'3-11周,13-15周,17周',p:'新D309',t:'陈莉'},
-      {n:'工程制图',d:1,s:[5,6],w:'3-5周',p:'新C307',t:'陈莉'},
-      {n:'大学体育Ⅰ',d:1,s:[7,8],w:'3周,15周',p:'新校区运动场',t:'周金伟'},
-      {n:'思想道德与法治',d:1,s:[9,10],w:'3-7周,10-11周,13-15周,17-18周',p:'新D310',t:'付灿'},
-      {n:'大学生安全教育Ⅰ',d:2,s:[1,2],w:'10周,15-17周(单),18周',p:'新C408',t:'胡梅'},
-      {n:'形势与政策Ⅰ',d:2,s:[1,2],w:'13-14周',p:'新D503',t:'程鸿'},
-      {n:'工程材料',d:2,s:[3,4],w:'3-5周,7-8周',p:'新D307',t:'钟玉洁'},
-      {n:'工程材料',d:2,s:[3,4],w:'9-11周,13-15周,17-18周',p:'新D307',t:'钟玉洁'},
-      {n:'工程材料',d:2,s:[5,6],w:'9-11周,13-15周,17-18周',p:'新D307',t:'钟玉洁'},
-      {n:'工程材料',d:2,s:[5,6],w:'7周',p:'新C406',t:'钟玉洁'},
-      {n:'高等数学Ⅰ',d:2,s:[7,8],w:'10周',p:'新D310',t:'胡丽娟'},
-      {n:'高等数学Ⅰ',d:2,s:[7,8],w:'13周',p:'新B201',t:'胡丽娟'},
-      {n:'职业发展与就业指导(含专业认知）（上）',d:2,s:[9,10],w:'3-5周',p:'新D401',t:'袁佐霄'},
-      {n:'思想道德与法治',d:2,s:[9,10],w:'7周,10-11周,13-15周,17-18周',p:'新D310',t:'付灿'},
-      {n:'数字技术应用基础',d:3,s:[1,2],w:'3-7周,9-10周',p:'新D403',t:'陈艳'},
-      {n:'数字技术应用基础',d:3,s:[1,2],w:'13-15周,17周',p:'XA208计算机实训室12',t:'陈艳'},
-      {n:'数字技术应用基础',d:3,s:[3,4],w:'4周',p:'新D410',t:'陈艳'},
-      {n:'大学体育Ⅰ',d:3,s:[3,4],w:'7周',p:'新校区运动场',t:'周金伟'},
-      {n:'工程材料',d:4,s:[1,2],w:'6-7周',p:'新D310',t:'钟玉洁'},
-      {n:'工程材料',d:4,s:[1,2],w:'8-9周',p:'新D409',t:'钟玉洁'},
-      {n:'工程测量',d:4,s:[1,2],w:'10-11周,13-18周',p:'新D310',t:'冉凌'},
-      {n:'工程测量',d:4,s:[3,4],w:'10-11周,13-18周',p:'新D310',t:'冉凌'},
-      {n:'大学生心理健康教育',d:4,s:[9,10],w:'3-7周,10-11周,13周',p:'新D406',t:'徐梓峻'},
-      {n:'高等数学Ⅰ',d:5,s:[1,2],w:'10-11周,13-15周,17-18周',p:'新D310',t:'胡丽娟'},
-      {n:'大学体育Ⅰ',d:5,s:[3,4],w:'3-7周,10-11周,13-15周,17-18周',p:'新校区运动场',t:'周金伟'},
-      {n:'高职英语Ⅰ',d:5,s:[5,6],w:'3-7周,10-11周,13-15周,17-18周',p:'新C310',t:'田小霞'},
-      {n:'思想道德与法治',d:5,s:[7,8],w:'3-6周',p:'新B201',t:'付灿'},
-      {n:'大学体育Ⅰ',d:5,s:[7,8],w:'7周',p:'新校区运动场',t:'周金伟'},
-      {n:'高等数学Ⅰ',d:5,s:[7,8],w:'10-11周,13-15周,17-18周',p:'新B205-1',t:'胡丽娟'},
-      {n:'工程材料',d:7,s:[3,4],w:'3周',p:'新D307',t:'钟玉洁',note:BUKE_NOTE},
-      {n:'工程材料',d:7,s:[5,6],w:'3周',p:'新C406',t:'钟玉洁',note:BUKE_NOTE},
-      {n:'职业发展与就业指导(含专业认知）（上）',d:7,s:[9,10],w:'3周',p:'新D401',t:'袁佐霄',note:BUKE_NOTE}
-    ]
-  },
-  /* ═══════════ 建筑工程2601 ═══════════ */
-  jg: {
-    name:'建筑工程2601', major:'建筑工程技术',
-    practice:[{name:'认识实习',teacher:'陈莉',week:9},{name:'工程测量实训',teacher:'冉凌',week:16}],
-    notices:[BUKE_NOTICE], /* ★调课公告 */
-    courses:[
-      {n:'高职英语Ⅰ',d:1,s:[1,2],w:'3-7周,10-11周,13-15周,17-18周',p:'新D304',t:'田小霞'},
-      {n:'工程制图',d:1,s:[3,4],w:'3-11周,13-15周,17周',p:'新D309',t:'陈莉'},
-      {n:'工程制图',d:1,s:[5,6],w:'3-5周',p:'新C307',t:'陈莉'},
-      {n:'大学体育Ⅰ',d:1,s:[7,8],w:'3周,15周',p:'新校区运动场',t:'周金伟'},
-      {n:'思想道德与法治',d:1,s:[9,10],w:'3-7周,10-11周,13-15周,17-18周',p:'新D310',t:'付灿'},
-      {n:'大学生安全教育Ⅰ',d:2,s:[1,2],w:'10周,15-17周(单),18周',p:'新C408',t:'胡梅'},
-      {n:'形势与政策Ⅰ',d:2,s:[1,2],w:'13-14周',p:'新D503',t:'程鸿'},
-      {n:'工程材料',d:2,s:[3,4],w:'3-5周,7-8周',p:'新D307',t:'钟玉洁'},
-      {n:'工程材料',d:2,s:[3,4],w:'9-11周,13-15周,17-18周',p:'新D307',t:'钟玉洁'},
-      {n:'工程材料',d:2,s:[5,6],w:'9-11周,13-15周,17-18周',p:'新D307',t:'钟玉洁'},
-      {n:'工程材料',d:2,s:[5,6],w:'7周',p:'新C406',t:'钟玉洁'},
-      {n:'高等数学Ⅰ',d:2,s:[7,8],w:'10周',p:'新D310',t:'胡丽娟'},
-      {n:'高等数学Ⅰ',d:2,s:[7,8],w:'13周',p:'新B201',t:'胡丽娟'},
-      {n:'职业发展与就业指导(含专业认知）（上）',d:2,s:[9,10],w:'3-5周',p:'新D401',t:'袁佐霄'},
-      {n:'思想道德与法治',d:2,s:[9,10],w:'7周,10-11周,13-15周,17-18周',p:'新D310',t:'付灿'},
-      {n:'数字技术应用基础',d:3,s:[1,2],w:'3-8周,10-11周,13-15周,17周',p:'新D301',t:'钱欣丽'},
-      {n:'大学体育Ⅰ',d:3,s:[3,4],w:'7周',p:'新校区运动场',t:'周金伟'},
-      {n:'工程材料',d:4,s:[1,2],w:'6-7周',p:'新D310',t:'钟玉洁'},
-      {n:'工程材料',d:4,s:[1,2],w:'8-9周',p:'新D409',t:'钟玉洁'},
-      {n:'工程测量',d:4,s:[1,2],w:'10-11周,13-18周',p:'新D310',t:'冉凌'},
-      {n:'工程测量',d:4,s:[3,4],w:'10-11周,13-18周',p:'新D310',t:'冉凌'},
-      {n:'大学生心理健康教育',d:4,s:[9,10],w:'3-7周,10-11周,13周',p:'新D406',t:'徐梓峻'},
-      {n:'高等数学Ⅰ',d:5,s:[1,2],w:'10-11周,13-15周,17-18周',p:'新D310',t:'胡丽娟'},
-      {n:'大学体育Ⅰ',d:5,s:[3,4],w:'3-7周,10-11周,13-15周,17-18周',p:'新校区运动场',t:'周金伟'},
-      {n:'高职英语Ⅰ',d:5,s:[5,6],w:'3-7周,10-11周,13-15周,17-18周',p:'新C310',t:'田小霞'},
-      {n:'思想道德与法治',d:5,s:[7,8],w:'3-6周',p:'新B201',t:'付灿'},
-      {n:'大学体育Ⅰ',d:5,s:[7,8],w:'7周',p:'新校区运动场',t:'周金伟'},
-      {n:'高等数学Ⅰ',d:5,s:[7,8],w:'10-11周,13-15周,17-18周',p:'新B205-1',t:'胡丽娟'},
-      {n:'工程材料',d:7,s:[3,4],w:'3周',p:'新D307',t:'钟玉洁',note:BUKE_NOTE},
-      {n:'工程材料',d:7,s:[5,6],w:'3周',p:'新C406',t:'钟玉洁',note:BUKE_NOTE},
-      {n:'职业发展与就业指导(含专业认知）（上）',d:7,s:[9,10],w:'3周',p:'新D401',t:'袁佐霄',note:BUKE_NOTE}
-    ]
-  },
-  /* ═══════════ 救援技术2601 ═══════════ */
-  jy1: {
-    name:'救援技术2601', major:'应急救援技术',
-    practice:[{name:'认识实习',teacher:'付阳',week:9},{name:'工程测量实训',teacher:'钟玉洁',week:14}],
-    notices:[BUKE_NOTICE], /* ★调课公告 */
-    courses:[
-      {n:'体能综合训练Ⅰ',d:1,s:[3,4],w:'5-8周,10-11周,13-15周(单),16-18周',p:'新D301',t:'冉凌'},
-      {n:'应急管理概论',d:1,s:[5,6],w:'10-11周,13-14周,16-18周',p:'新B205-2',t:'付阳'},
-      {n:'高职英语Ⅰ',d:1,s:[7,8],w:'3-8周,10-11周,13周,16-18周',p:'新C310',t:'柯萍'},
-      {n:'数字技术应用基础',d:1,s:[9,10],w:'4-8周,10-11周,13-15周(单),16-18周',p:'新C308',t:'黄安琪'},
-      {n:'高等数学Ⅰ',d:2,s:[1,2],w:'3-5周',p:'新D308',t:'范晶晶'},
-      {n:'职业发展与就业指导(含专业认知）（上）',d:2,s:[1,2],w:'7-8周,10-11周',p:'新D309',t:'罗文韬'},
-      {n:'工程测量',d:2,s:[1,2],w:'13-15周(单),16-18周',p:'新B205-2',t:'钟玉洁'},
-      {n:'工程制图',d:2,s:[3,4],w:'3-5周,7-11周,13-15周(单),16-18周',p:'新D306',t:'陈莉'},
-      {n:'应急管理概论',d:2,s:[5,6],w:'3-5周',p:'新D307',t:'付阳'},
-      {n:'高职英语Ⅰ',d:2,s:[7,8],w:'3-5周,7-8周,10-11周,13周,16-18周',p:'新C307',t:'柯萍'},
-      {n:'大学生心理健康教育',d:2,s:[9,10],w:'3-5周,7周,10-11周,13周',p:'新D309',t:'徐梓峻'},
-      {n:'形势与政策Ⅰ',d:2,s:[9,10],w:'16-17周',p:'新C308',t:'徐垓学'},
-      {n:'体能综合训练Ⅰ',d:3,s:[1,2],w:'9-11周',p:'新校区运动场',t:'冉凌'},
-      {n:'应急管理概论',d:3,s:[3,4],w:'3-8周,10-11周,13-15周(单),16-18周',p:'新D310',t:'付阳'},
-      {n:'思想道德与法治',d:4,s:[3,4],w:'3-4周',p:'新D310',t:'赵广茹'},
-      {n:'大学生安全教育Ⅰ',d:4,s:[3,4],w:'5-8周',p:'新C305',t:'胡梅'},
-      {n:'工程测量',d:4,s:[3,4],w:'13-15周(单),16-18周',p:'新B205-2',t:'钟玉洁'},
-      {n:'大学体育Ⅰ',d:4,s:[7,8],w:'7-10周',p:'新校区运动场',t:'周金伟'},
-      {n:'思想道德与法治',d:5,s:[1,2],w:'3-8周,10-11周,13-14周',p:'新D309',t:'赵广茹'},
-      {n:'工程测量',d:5,s:[1,2],w:'15-16周',p:'新D410',t:'钟玉洁'},
-      {n:'体能综合训练Ⅰ',d:5,s:[3,4],w:'3-8周,10-11周,16-17周',p:'新D306',t:'冉凌'},
-      {n:'工程测量',d:5,s:[3,4],w:'13-15周,18周',p:'新D403',t:'钟玉洁'},
-      {n:'大学体育Ⅰ',d:5,s:[5,6],w:'3-8周,10-11周,13周,16-18周',p:'新校区运动场',t:'周金伟'},
-      {n:'思想道德与法治',d:5,s:[7,8],w:'3-8周,10-11周,13周,16-18周',p:'新C309',t:'赵广茹'},
-      {n:'高等数学Ⅰ',d:7,s:[1,2],w:'3周',p:'新D308',t:'范晶晶',note:BUKE_NOTE},
-      {n:'工程制图',d:7,s:[3,4],w:'3周',p:'新D306',t:'陈莉',note:BUKE_NOTE},
-      {n:'应急管理概论',d:7,s:[5,6],w:'3周',p:'新D307',t:'付阳',note:BUKE_NOTE},
-      {n:'高职英语Ⅰ',d:7,s:[7,8],w:'3周',p:'新C307',t:'柯萍',note:BUKE_NOTE},
-      {n:'大学生心理健康教育',d:7,s:[9,10],w:'3周',p:'新D309',t:'徐梓峻',note:BUKE_NOTE}
-    ]
-  },
-  /* ═══════════ 救援技术2602 ═══════════ */
-  jy2: {
-    name:'救援技术2602', major:'应急救援技术',
-    practice:[{name:'认识实习',teacher:'李望成',week:9},{name:'工程测量实训',teacher:'钟玉洁',week:15}],
-    notices:[BUKE_NOTICE], /* ★调课公告 */
-    courses:[
-      {n:'体能综合训练Ⅰ',d:1,s:[1,2],w:'7-8周,10-11周,13-14周,16-18周',p:'新校区运动场',t:'冉凌'},
-      {n:'工程测量',d:1,s:[3,4],w:'3-10周',p:'新B203-1',t:'钟玉洁'},
-      {n:'工程测量',d:1,s:[5,6],w:'3-5周',p:'新D309',t:'钟玉洁'},
-      {n:'工程制图',d:1,s:[5,6],w:'6-8周',p:'新C407',t:'陈莉'},
-      {n:'体能综合训练Ⅰ',d:1,s:[5,6],w:'10-11周,16-18周',p:'新B201',t:'冉凌'},
-      {n:'高职英语Ⅰ',d:1,s:[7,8],w:'3-8周,10-11周,13周,16-18周',p:'新C310',t:'柯萍'},
-      {n:'体能综合训练Ⅰ',d:1,s:[9,10],w:'5-6周',p:'新D410',t:'冉凌'},
-      {n:'高等数学Ⅰ',d:2,s:[1,2],w:'3-5周',p:'新D308',t:'范晶晶'},
-      {n:'职业发展与就业指导(含专业认知）（上）',d:2,s:[1,2],w:'7-8周,10-11周',p:'新D309',t:'罗文韬'},
-      {n:'体能综合训练Ⅰ',d:2,s:[1,2],w:'13-14周,16-18周',p:'新校区运动场',t:'冉凌'},
-      {n:'工程制图',d:2,s:[5,6],w:'3-5周,7-11周,14-16周(双),17-18周',p:'新C310',t:'陈莉'},
-      {n:'高职英语Ⅰ',d:2,s:[7,8],w:'3-5周,7-8周,10-11周,13周,16-18周',p:'新C307',t:'柯萍'},
-      {n:'大学生心理健康教育',d:2,s:[9,10],w:'3-5周,7周,10-11周,13周',p:'新D309',t:'徐梓峻'},
-      {n:'形势与政策Ⅰ',d:2,s:[9,10],w:'16-17周',p:'新C308',t:'徐垓学'},
-      {n:'应急管理概论',d:3,s:[1,2],w:'5-8周,10-11周,13-14周,16-18周',p:'新D309',t:'付阳'},
-      {n:'工程测量',d:3,s:[3,4],w:'11周,14-16周(双),17-18周',p:'新B205-2',t:'钟玉洁'},
-      {n:'数字技术应用基础',d:4,s:[1,2],w:'3-8周,10-11周,13-14周,16-17周',p:'新D309',t:'周鑫怡'},
-      {n:'思想道德与法治',d:4,s:[3,4],w:'3-4周',p:'新D310',t:'赵广茹'},
-      {n:'大学生安全教育Ⅰ',d:4,s:[3,4],w:'5-8周',p:'新C305',t:'胡梅'},
-      {n:'大学体育Ⅰ',d:4,s:[7,8],w:'7-10周',p:'新校区运动场',t:'周金伟'},
-      {n:'思想道德与法治',d:5,s:[1,2],w:'3-8周,10-11周,13-14周',p:'新D309',t:'赵广茹'},
-      {n:'体能综合训练Ⅰ',d:5,s:[1,2],w:'16-18周',p:'新校区运动场',t:'冉凌'},
-      {n:'应急管理概论',d:5,s:[3,4],w:'3-8周,10-11周,13-14周,16-18周',p:'新D309',t:'付阳'},
-      {n:'大学体育Ⅰ',d:5,s:[5,6],w:'3-8周,10-11周,13周,16-18周',p:'新校区运动场',t:'周金伟'},
-      {n:'思想道德与法治',d:5,s:[7,8],w:'3-8周,10-11周,13周,16-18周',p:'新C309',t:'赵广茹'},
-      {n:'高等数学Ⅰ',d:7,s:[1,2],w:'3周',p:'新D308',t:'范晶晶',note:BUKE_NOTE},
-      {n:'工程制图',d:7,s:[5,6],w:'3周',p:'新C310',t:'陈莉',note:BUKE_NOTE},
-      {n:'高职英语Ⅰ',d:7,s:[7,8],w:'3周',p:'新C307',t:'柯萍',note:BUKE_NOTE},
-      {n:'大学生心理健康教育',d:7,s:[9,10],w:'3周',p:'新D309',t:'徐梓峻',note:BUKE_NOTE}
-    ]
-  },
-  /* ═══════════ 铁道工程2601 ═══════════ */
-  td: {
-    name:'铁道工程2601', major:'铁道工程技术',
-    practice:[{name:'认识实习',teacher:'王影',week:8},{name:'工程测量实训',teacher:'冉凌',week:17}],
-    notices:[BUKE_NOTICE], /* ★调课公告 */
-    courses:[
-      {n:'思想道德与法治',d:1,s:[1,2],w:'3-7周,9-11周,13-16周,18周',p:'新D301',t:'赵广茹'},
-      {n:'思想道德与法治',d:1,s:[3,4],w:'3-5周',p:'新C307',t:'赵广茹'},
-      {n:'工程材料',d:1,s:[3,4],w:'10-11周,13-16周,18周',p:'新C410',t:'田琳'},
-      {n:'思想道德与法治',d:1,s:[5,6],w:'3-7周',p:'新D308',t:'赵广茹'},
-      {n:'工程材料',d:1,s:[5,6],w:'10-11周,13-16周,18周',p:'新D407',t:'田琳'},
-      {n:'工程制图',d:1,s:[7,8],w:'3-7周,9-11周,13-16周,18周',p:'新C403',t:'陈莉'},
-      {n:'高职英语Ⅰ',d:1,s:[9,10],w:'5-6周,8-11周,13-16周,18周',p:'新D302',t:'田小霞'},
-      {n:'高等数学Ⅰ',d:2,s:[1,2],w:'13-14周',p:'新D306',t:'胡丽娟'},
-      {n:'思想道德与法治',d:2,s:[1,2],w:'15-16周,18周',p:'新D310',t:'赵广茹'},
-      {n:'大学体育Ⅰ',d:2,s:[5,6],w:'3-5周,7周,9-11周,13-16周,18周',p:'新校区运动场',t:'郑菱婕'},
-      {n:'工程制图',d:2,s:[7,8],w:'5周,7周',p:'新C310',t:'陈莉'},
-      {n:'职业发展与就业指导(含专业认知）（上）',d:2,s:[7,8],w:'8-11周',p:'新C405',t:'徐梓峻'},
-      {n:'大学生安全教育Ⅰ',d:2,s:[7,8],w:'13-16周',p:'新C306',t:'胡梅'},
-      {n:'高职英语Ⅰ',d:2,s:[9,10],w:'3-5周,7周,9-11周,13-16周,18周',p:'新D301',t:'田小霞'},
-      {n:'工程测量',d:3,s:[3,4],w:'3-7周,9-11周,13-16周,18周',p:'新D304',t:'冉凌'},
-      {n:'形势与政策Ⅰ',d:3,s:[7,8],w:'13-14周',p:'新C307',t:'曾霏'},
-      {n:'工程材料',d:4,s:[3,4],w:'10-11周,13-16周,18周',p:'新C305',t:'田琳'},
-      {n:'大学体育Ⅰ',d:4,s:[7,8],w:'13-15周',p:'新校区运动场',t:'郑菱婕'},
-      {n:'数字技术应用基础',d:4,s:[9,10],w:'3-7周,9-11周,13-16周',p:'新C305',t:'刘学虎'},
-      {n:'工程材料',d:5,s:[3,4],w:'3-7周,9-10周',p:'新C410',t:'田琳'},
-      {n:'高等数学Ⅰ',d:5,s:[3,4],w:'11-13周(单),14-18周',p:'新D305',t:'胡丽娟'},
-      {n:'工程测量',d:5,s:[5,6],w:'3-5周',p:'新B203-1',t:'冉凌'},
-      {n:'大学生心理健康教育',d:5,s:[5,6],w:'6-9周',p:'新D302',t:'徐梓峻'},
-      {n:'高等数学Ⅰ',d:5,s:[5,6],w:'10-11周,13-16周,18周',p:'新C306',t:'胡丽娟'},
-      {n:'大学生心理健康教育',d:5,s:[7,8],w:'3-6周',p:'新C306',t:'徐梓峻'},
-      {n:'大学体育Ⅰ',d:7,s:[5,6],w:'3周',p:'新校区运动场',t:'郑菱婕',note:BUKE_NOTE},
-      {n:'工程制图',d:7,s:[7,8],w:'3周',p:'新C310',t:'陈莉',note:BUKE_NOTE},
-      {n:'高职英语Ⅰ',d:7,s:[9,10],w:'3周',p:'新D301',t:'田小霞',note:BUKE_NOTE}
-    ]
-  },
-  /* ═══════════ 无人机测绘2601 ═══════════ */
-  wrj: {
-    name:'无人机测绘2601', major:'无人机测绘技术',
-    practice:[],
-    notices:[BUKE_NOTICE], /* ★调课公告 */
-    courses:[
-      {n:'思想道德与法治',d:1,s:[1,2],w:'3-7周,9-11周,13-16周,18周',p:'新D301',t:'赵广茹'},
-      {n:'思想道德与法治',d:1,s:[3,4],w:'3-5周',p:'新C307',t:'赵广茹'},
-      {n:'数字技术应用基础',d:1,s:[3,4],w:'6-9周,11-13周(单),14-18周',p:'新C307',t:'唐谦'},
-      {n:'思想道德与法治',d:1,s:[5,6],w:'3-7周',p:'新D308',t:'赵广茹'},
-      {n:'高职英语Ⅰ',d:1,s:[9,10],w:'5-6周,8-11周,13-16周,18周',p:'新D302',t:'田小霞'},
-      {n:'数字技术应用基础',d:1,s:[9,10],w:'7周',p:'新C307',t:'唐谦'},
-      {n:'测绘基础',d:2,s:[1,2],w:'3-5周,7-11周',p:'新D310',t:'冉凌'},
-      {n:'高等数学Ⅰ',d:2,s:[1,2],w:'13-14周',p:'新D306',t:'胡丽娟'},
-      {n:'思想道德与法治',d:2,s:[1,2],w:'15-16周,18周',p:'新D310',t:'赵广茹'},
-      {n:'测绘基础',d:2,s:[3,4],w:'3-5周,7-11周',p:'新D310',t:'冉凌'},
-      {n:'测绘基础',d:2,s:[3,4],w:'13-18周',p:'新D310',t:'冉凌'},
-      {n:'大学体育Ⅰ',d:2,s:[5,6],w:'3-5周,7周,9-11周,13-16周,18周',p:'新校区运动场',t:'郑菱婕'},
-      {n:'职业发展与就业指导(含专业认知）（上）',d:2,s:[7,8],w:'8-11周',p:'新C405',t:'徐梓峻'},
-      {n:'大学生安全教育Ⅰ',d:2,s:[7,8],w:'13-16周',p:'新C306',t:'胡梅'},
-      {n:'高职英语Ⅰ',d:2,s:[9,10],w:'3-5周,7周,9-11周,13-16周,18周',p:'新D301',t:'田小霞'},
-      {n:'机械识图与制图（含CAD）',d:3,s:[1,2],w:'3-9周,11周',p:'新D104',t:'陈莉'},
-      {n:'机械识图与制图（含CAD）',d:3,s:[1,2],w:'10周',p:'新B203-1',t:'陈莉'},
-      {n:'机械识图与制图（含CAD）',d:3,s:[1,2],w:'13-15周,17-18周',p:'主校区 D305工程软件实训室',t:'陈莉'},
-      {n:'机械识图与制图（含CAD）',d:3,s:[1,2],w:'16周',p:'主校区 C309',t:'陈莉'},
-      {n:'机械识图与制图（含CAD）',d:3,s:[3,4],w:'13-15周,17-18周',p:'主校区 D305工程软件实训室',t:'陈莉'},
-      {n:'机械识图与制图（含CAD）',d:3,s:[3,4],w:'16周',p:'主校区 D305工程软件实训室',t:'陈莉'},
-      {n:'形势与政策Ⅰ',d:3,s:[7,8],w:'13-14周',p:'新C307',t:'曾霏'},
-      {n:'无人机导论与飞行法规',d:4,s:[1,2],w:'3周',p:'新D310',t:'张宁'},
-      {n:'机械识图与制图（含CAD）',d:4,s:[1,2],w:'10-11周,13-14周',p:'XA208计算机实训室12',t:'陈莉'},
-      {n:'机械识图与制图（含CAD）',d:4,s:[3,4],w:'3-9周',p:'新D303',t:'陈莉'},
-      {n:'大学体育Ⅰ',d:4,s:[7,8],w:'13-15周',p:'新校区运动场',t:'郑菱婕'},
-      {n:'无人机导论与飞行法规',d:5,s:[1,2],w:'3-11周,13-18周',p:'主校区 C306',t:'张宁'},
-      {n:'高等数学Ⅰ',d:5,s:[3,4],w:'11-13周(单),14-18周',p:'新D305',t:'胡丽娟'},
-      {n:'大学生心理健康教育',d:5,s:[5,6],w:'6-9周',p:'新D302',t:'徐梓峻'},
-      {n:'高等数学Ⅰ',d:5,s:[5,6],w:'10-11周,13-16周,18周',p:'新C306',t:'胡丽娟'},
-      {n:'大学生心理健康教育',d:5,s:[7,8],w:'3-6周',p:'新C306',t:'徐梓峻'},
-      {n:'测绘基础',d:7,s:[1,2],w:'3周',p:'新D310',t:'冉凌',note:BUKE_NOTE},
-      {n:'测绘基础',d:7,s:[3,4],w:'3周',p:'新D310',t:'冉凌',note:BUKE_NOTE},
-      {n:'大学体育Ⅰ',d:7,s:[5,6],w:'3周',p:'新校区运动场',t:'郑菱婕',note:BUKE_NOTE},
-      {n:'高职英语Ⅰ',d:7,s:[9,10],w:'3周',p:'新D301',t:'田小霞',note:BUKE_NOTE}
-    ]
-  },
-  /* ═══════════ 铁道信号2604 ═══════════ */
-  xh2604: {
-    name:'铁道信号2604', major:'铁道信号自动控制',
-    practice:[
-      {name:'电工技能实训',teacher:'黄刚、蔡辉',week:16},
-      {name:'专业认知实习I',teacher:'黄应超',week:12}
-    ],
-    notices:[BUKE_NOTICE], /* ★调课公告 */
-    courses:[
-      {n:'高职英语Ⅰ',d:1,s:[3,4],w:'3-11周,13-15周,17-18周',p:'新C308',t:'马玉玲'},
-      {n:'信息技术',d:1,s:[5,6],w:'3-11周,13周',p:'D204计算机实训室5',t:'曾光'},
-      {n:'信息技术',d:1,s:[5,6],w:'14-15周,17-18周',p:'D204计算机实训室5',t:'曾光'},
-      {n:'信息技术',d:1,s:[7,8],w:'3-11周,13周',p:'D204计算机实训室5',t:'曾光'},
-      {n:'思想道德与法治',d:1,s:[9,10],w:'3-11周,13-15周,17-18周',p:'新C407',t:'王梦莹'},
-      {n:'高等数学Ⅰ',d:2,s:[1,2],w:'3-4周',p:'新B203-1',t:'魏盈盈'},
-      {n:'大学生安全教育Ⅰ',d:2,s:[1,2],w:'5周,7-8周',p:'新C404',t:'何清清'},
-      {n:'形势与政策Ⅰ',d:2,s:[1,2],w:'10-11周',p:'新B201',t:'朱润涵'},
-      {n:'铁道概论（含城轨）',d:2,s:[3,4],w:'3-5周,7-11周,13-15周,17-18周',p:'新C404',t:'何杨杨'},
-      {n:'电工技术',d:2,s:[5,6],w:'3-4周',p:'新B102',t:'董家兴'},
-      {n:'电工技术',d:2,s:[5,6],w:'5周',p:'新D409',t:'董家兴'},
-      {n:'大学体育Ⅰ',d:2,s:[5,6],w:'17周',p:'新校区运动场',t:'刘衡'},
-      {n:'职业发展与就业指导(含专业认知）（上）',d:2,s:[7,8],w:'3-5周',p:'新B205-2',t:'曾科'},
-      {n:'思想道德与法治',d:2,s:[7,8],w:'7-11周,13-15周,17-18周',p:'新C408',t:'王梦莹'},
-      {n:'高职英语Ⅰ',d:3,s:[1,2],w:'3-11周,13周',p:'新C309',t:'马玉玲'},
-      {n:'铁道概论（含城轨）',d:3,s:[3,4],w:'7-8周',p:'新B201',t:'何杨杨'},
-      {n:'高等数学Ⅰ',d:4,s:[1,2],w:'3-11周,13-15周,17-18周',p:'新D306',t:'魏盈盈'},
-      {n:'大学体育Ⅰ',d:4,s:[3,4],w:'3-11周,13-15周,17-18周',p:'新校区运动场',t:'刘衡'},
-      {n:'电工技术',d:4,s:[9,10],w:'3-11周,13-15周,17-18周',p:'新C308',t:'董家兴'},
-      {n:'大学生心理健康教育',d:5,s:[1,2],w:'3-10周',p:'新C402',t:'罗雪梅'},
-      {n:'电工技术',d:5,s:[3,4],w:'3-11周,13-15周,17-18周',p:'新B205-2',t:'董家兴'},
-      {n:'大学体育Ⅰ',d:5,s:[5,6],w:'5周',p:'新校区运动场',t:'刘衡'},
-      {n:'大学生安全教育Ⅰ',d:7,s:[1,2],w:'3周',p:'新C404',t:'何清清',note:BUKE_NOTE},
-      {n:'铁道概论（含城轨）',d:7,s:[3,4],w:'3周',p:'新C404',t:'何杨杨',note:BUKE_NOTE},
-      {n:'电工技术',d:7,s:[5,6],w:'3周',p:'新D308',t:'董家兴',note:BUKE_NOTE},
-      {n:'职业发展与就业指导(含专业认知）（上）',d:7,s:[7,8],w:'3周',p:'新B205-2',t:'曾科',note:BUKE_NOTE}
-    ]
-  }
+/* ═══ 班级数据：格式 课名|星期|节|周次|地点|教师（末尾|#=补课标记）═══
+   以后加班级：把课表发我，我按此格式给你"一个班块"粘进 RAW。*/
+const RAW={
+dq:{n:'道路桥梁2601',m:'道路与桥梁工程技术',pr:'认识实习@杨义辉@9;工程测量实训@冉凌@16',c:`
+高职英语Ⅰ|1|1-2|3-7周,10-11周,13-15周,17-18周|新D304|田小霞
+工程制图|1|3-4|3-11周,13-15周,17周|新D309|陈莉
+工程制图|1|5-6|3-5周|新C307|陈莉
+大学体育Ⅰ|1|7-8|3周,15周|新校区运动场|周金伟
+思想道德与法治|1|9-10|3-7周,10-11周,13-15周,17-18周|新D310|付灿
+大学生安全教育Ⅰ|2|1-2|10周,15-17周(单),18周|新C408|胡梅
+形势与政策Ⅰ|2|1-2|13-14周|新D503|程鸿
+工程材料|2|3-4|3-5周,7-8周|新D307|钟玉洁
+工程材料|2|3-4|9-11周,13-15周,17-18周|新D307|钟玉洁
+工程材料|2|5-6|9-11周,13-15周,17-18周|新D307|钟玉洁
+工程材料|2|5-6|7周|新C406|钟玉洁
+高等数学Ⅰ|2|7-8|10周|新D310|胡丽娟
+高等数学Ⅰ|2|7-8|13周|新B201|胡丽娟
+职业发展与就业指导(含专业认知）（上）|2|9-10|3-5周|新D401|袁佐霄
+思想道德与法治|2|9-10|7周,10-11周,13-15周,17-18周|新D310|付灿
+数字技术应用基础|3|1-2|3-7周,9-10周|新D403|陈艳
+数字技术应用基础|3|1-2|13-15周,17周|XA208计算机实训室12|陈艳
+数字技术应用基础|3|3-4|4周|新D410|陈艳
+大学体育Ⅰ|3|3-4|7周|新校区运动场|周金伟
+工程材料|4|1-2|6-7周|新D310|钟玉洁
+工程材料|4|1-2|8-9周|新D409|钟玉洁
+工程测量|4|1-2|10-11周,13-18周|新D310|冉凌
+工程测量|4|3-4|10-11周,13-18周|新D310|冉凌
+大学生心理健康教育|4|9-10|3-7周,10-11周,13周|新D406|徐梓峻
+高等数学Ⅰ|5|1-2|10-11周,13-15周,17-18周|新D310|胡丽娟
+大学体育Ⅰ|5|3-4|3-7周,10-11周,13-15周,17-18周|新校区运动场|周金伟
+高职英语Ⅰ|5|5-6|3-7周,10-11周,13-15周,17-18周|新C310|田小霞
+思想道德与法治|5|7-8|3-6周|新B201|付灿
+大学体育Ⅰ|5|7-8|7周|新校区运动场|周金伟
+高等数学Ⅰ|5|7-8|10-11周,13-15周,17-18周|新B205-1|胡丽娟
+工程材料|7|3-4|3周|新D307|钟玉洁|#
+工程材料|7|5-6|3周|新C406|钟玉洁|#
+职业发展与就业指导(含专业认知）（上）|7|9-10|3周|新D401|袁佐霄|#`},
+jg:{n:'建筑工程2601',m:'建筑工程技术',pr:'认识实习@陈莉@9;工程测量实训@冉凌@16',c:`
+高职英语Ⅰ|1|1-2|3-7周,10-11周,13-15周,17-18周|新D304|田小霞
+工程制图|1|3-4|3-11周,13-15周,17周|新D309|陈莉
+工程制图|1|5-6|3-5周|新C307|陈莉
+大学体育Ⅰ|1|7-8|3周,15周|新校区运动场|周金伟
+思想道德与法治|1|9-10|3-7周,10-11周,13-15周,17-18周|新D310|付灿
+大学生安全教育Ⅰ|2|1-2|10周,15-17周(单),18周|新C408|胡梅
+形势与政策Ⅰ|2|1-2|13-14周|新D503|程鸿
+工程材料|2|3-4|3-5周,7-8周|新D307|钟玉洁
+工程材料|2|3-4|9-11周,13-15周,17-18周|新D307|钟玉洁
+工程材料|2|5-6|9-11周,13-15周,17-18周|新D307|钟玉洁
+工程材料|2|5-6|7周|新C406|钟玉洁
+高等数学Ⅰ|2|7-8|10周|新D310|胡丽娟
+高等数学Ⅰ|2|7-8|13周|新B201|胡丽娟
+职业发展与就业指导(含专业认知）（上）|2|9-10|3-5周|新D401|袁佐霄
+思想道德与法治|2|9-10|7周,10-11周,13-15周,17-18周|新D310|付灿
+数字技术应用基础|3|1-2|3-8周,10-11周,13-15周,17周|新D301|钱欣丽
+大学体育Ⅰ|3|3-4|7周|新校区运动场|周金伟
+工程材料|4|1-2|6-7周|新D310|钟玉洁
+工程材料|4|1-2|8-9周|新D409|钟玉洁
+工程测量|4|1-2|10-11周,13-18周|新D310|冉凌
+工程测量|4|3-4|10-11周,13-18周|新D310|冉凌
+大学生心理健康教育|4|9-10|3-7周,10-11周,13周|新D406|徐梓峻
+高等数学Ⅰ|5|1-2|10-11周,13-15周,17-18周|新D310|胡丽娟
+大学体育Ⅰ|5|3-4|3-7周,10-11周,13-15周,17-18周|新校区运动场|周金伟
+高职英语Ⅰ|5|5-6|3-7周,10-11周,13-15周,17-18周|新C310|田小霞
+思想道德与法治|5|7-8|3-6周|新B201|付灿
+大学体育Ⅰ|5|7-8|7周|新校区运动场|周金伟
+高等数学Ⅰ|5|7-8|10-11周,13-15周,17-18周|新B205-1|胡丽娟
+工程材料|7|3-4|3周|新D307|钟玉洁|#
+工程材料|7|5-6|3周|新C406|钟玉洁|#
+职业发展与就业指导(含专业认知）（上）|7|9-10|3周|新D401|袁佐霄|#`},
+jy1:{n:'救援技术2601',m:'应急救援技术',pr:'认识实习@付阳@9;工程测量实训@钟玉洁@14',c:`
+体能综合训练Ⅰ|1|3-4|5-8周,10-11周,13-15周(单),16-18周|新D301|冉凌
+应急管理概论|1|5-6|10-11周,13-14周,16-18周|新B205-2|付阳
+高职英语Ⅰ|1|7-8|3-8周,10-11周,13周,16-18周|新C310|柯萍
+数字技术应用基础|1|9-10|4-8周,10-11周,13-15周(单),16-18周|新C308|黄安琪
+高等数学Ⅰ|2|1-2|3-5周|新D308|范晶晶
+职业发展与就业指导(含专业认知）（上）|2|1-2|7-8周,10-11周|新D309|罗文韬
+工程测量|2|1-2|13-15周(单),16-18周|新B205-2|钟玉洁
+工程制图|2|3-4|3-5周,7-11周,13-15周(单),16-18周|新D306|陈莉
+应急管理概论|2|5-6|3-5周|新D307|付阳
+高职英语Ⅰ|2|7-8|3-5周,7-8周,10-11周,13周,16-18周|新C307|柯萍
+大学生心理健康教育|2|9-10|3-5周,7周,10-11周,13周|新D309|徐梓峻
+形势与政策Ⅰ|2|9-10|16-17周|新C308|徐垓学
+体能综合训练Ⅰ|3|1-2|9-11周|新校区运动场|冉凌
+应急管理概论|3|3-4|3-8周,10-11周,13-15周(单),16-18周|新D310|付阳
+思想道德与法治|4|3-4|3-4周|新D310|赵广茹
+大学生安全教育Ⅰ|4|3-4|5-8周|新C305|胡梅
+工程测量|4|3-4|13-15周(单),16-18周|新B205-2|钟玉洁
+大学体育Ⅰ|4|7-8|7-10周|新校区运动场|周金伟
+思想道德与法治|5|1-2|3-8周,10-11周,13-14周|新D309|赵广茹
+工程测量|5|1-2|15-16周|新D410|钟玉洁
+体能综合训练Ⅰ|5|3-4|3-8周,10-11周,16-17周|新D306|冉凌
+工程测量|5|3-4|13-15周,18周|新D403|钟玉洁
+大学体育Ⅰ|5|5-6|3-8周,10-11周,13周,16-18周|新校区运动场|周金伟
+思想道德与法治|5|7-8|3-8周,10-11周,13周,16-18周|新C309|赵广茹
+高等数学Ⅰ|7|1-2|3周|新D308|范晶晶|#
+工程制图|7|3-4|3周|新D306|陈莉|#
+应急管理概论|7|5-6|3周|新D307|付阳|#
+高职英语Ⅰ|7|7-8|3周|新C307|柯萍|#
+大学生心理健康教育|7|9-10|3周|新D309|徐梓峻|#`},
+jy2:{n:'救援技术2602',m:'应急救援技术',pr:'认识实习@李望成@9;工程测量实训@钟玉洁@15',c:`
+体能综合训练Ⅰ|1|1-2|7-8周,10-11周,13-14周,16-18周|新校区运动场|冉凌
+工程测量|1|3-4|3-10周|新B203-1|钟玉洁
+工程测量|1|5-6|3-5周|新D309|钟玉洁
+工程制图|1|5-6|6-8周|新C407|陈莉
+体能综合训练Ⅰ|1|5-6|10-11周,16-18周|新B201|冉凌
+高职英语Ⅰ|1|7-8|3-8周,10-11周,13周,16-18周|新C310|柯萍
+体能综合训练Ⅰ|1|9-10|5-6周|新D410|冉凌
+高等数学Ⅰ|2|1-2|3-5周|新D308|范晶晶
+职业发展与就业指导(含专业认知）（上）|2|1-2|7-8周,10-11周|新D309|罗文韬
+体能综合训练Ⅰ|2|1-2|13-14周,16-18周|新校区运动场|冉凌
+工程制图|2|5-6|3-5周,7-11周,14-16周(双),17-18周|新C310|陈莉
+高职英语Ⅰ|2|7-8|3-5周,7-8周,10-11周,13周,16-18周|新C307|柯萍
+大学生心理健康教育|2|9-10|3-5周,7周,10-11周,13周|新D309|徐梓峻
+形势与政策Ⅰ|2|9-10|16-17周|新C308|徐垓学
+应急管理概论|3|1-2|5-8周,10-11周,13-14周,16-18周|新D309|付阳
+工程测量|3|3-4|11周,14-16周(双),17-18周|新B205-2|钟玉洁
+数字技术应用基础|4|1-2|3-8周,10-11周,13-14周,16-17周|新D309|周鑫怡
+思想道德与法治|4|3-4|3-4周|新D310|赵广茹
+大学生安全教育Ⅰ|4|3-4|5-8周|新C305|胡梅
+大学体育Ⅰ|4|7-8|7-10周|新校区运动场|周金伟
+思想道德与法治|5|1-2|3-8周,10-11周,13-14周|新D309|赵广茹
+体能综合训练Ⅰ|5|1-2|16-18周|新校区运动场|冉凌
+应急管理概论|5|3-4|3-8周,10-11周,13-14周,16-18周|新D309|付阳
+大学体育Ⅰ|5|5-6|3-8周,10-11周,13周,16-18周|新校区运动场|周金伟
+思想道德与法治|5|7-8|3-8周,10-11周,13周,16-18周|新C309|赵广茹
+高等数学Ⅰ|7|1-2|3周|新D308|范晶晶|#
+工程制图|7|5-6|3周|新C310|陈莉|#
+高职英语Ⅰ|7|7-8|3周|新C307|柯萍|#
+大学生心理健康教育|7|9-10|3周|新D309|徐梓峻|#`},
+td:{n:'铁道工程2601',m:'铁道工程技术',pr:'认识实习@王影@8;工程测量实训@冉凌@17',c:`
+思想道德与法治|1|1-2|3-7周,9-11周,13-16周,18周|新D301|赵广茹
+思想道德与法治|1|3-4|3-5周|新C307|赵广茹
+工程材料|1|3-4|10-11周,13-16周,18周|新C410|田琳
+思想道德与法治|1|5-6|3-7周|新D308|赵广茹
+工程材料|1|5-6|10-11周,13-16周,18周|新D407|田琳
+工程制图|1|7-8|3-7周,9-11周,13-16周,18周|新C403|陈莉
+高职英语Ⅰ|1|9-10|5-6周,8-11周,13-16周,18周|新D302|田小霞
+高等数学Ⅰ|2|1-2|13-14周|新D306|胡丽娟
+思想道德与法治|2|1-2|15-16周,18周|新D310|赵广茹
+大学体育Ⅰ|2|5-6|3-5周,7周,9-11周,13-16周,18周|新校区运动场|郑菱婕
+工程制图|2|7-8|5周,7周|新C310|陈莉
+职业发展与就业指导(含专业认知）（上）|2|7-8|8-11周|新C405|徐梓峻
+大学生安全教育Ⅰ|2|7-8|13-16周|新C306|胡梅
+高职英语Ⅰ|2|9-10|3-5周,7周,9-11周,13-16周,18周|新D301|田小霞
+工程测量|3|3-4|3-7周,9-11周,13-16周,18周|新D304|冉凌
+形势与政策Ⅰ|3|7-8|13-14周|新C307|曾霏
+工程材料|4|3-4|10-11周,13-16周,18周|新C305|田琳
+大学体育Ⅰ|4|7-8|13-15周|新校区运动场|郑菱婕
+数字技术应用基础|4|9-10|3-7周,9-11周,13-16周|新C305|刘学虎
+工程材料|5|3-4|3-7周,9-10周|新C410|田琳
+高等数学Ⅰ|5|3-4|11-13周(单),14-18周|新D305|胡丽娟
+工程测量|5|5-6|3-5周|新B203-1|冉凌
+大学生心理健康教育|5|5-6|6-9周|新D302|徐梓峻
+高等数学Ⅰ|5|5-6|10-11周,13-16周,18周|新C306|胡丽娟
+大学生心理健康教育|5|7-8|3-6周|新C306|徐梓峻
+大学体育Ⅰ|7|5-6|3周|新校区运动场|郑菱婕|#
+工程制图|7|7-8|3周|新C310|陈莉|#
+高职英语Ⅰ|7|9-10|3周|新D301|田小霞|#`},
+wrj:{n:'无人机测绘2601',m:'无人机测绘技术',pr:'',c:`
+思想道德与法治|1|1-2|3-7周,9-11周,13-16周,18周|新D301|赵广茹
+思想道德与法治|1|3-4|3-5周|新C307|赵广茹
+数字技术应用基础|1|3-4|6-9周,11-13周(单),14-18周|新C307|唐谦
+思想道德与法治|1|5-6|3-7周|新D308|赵广茹
+高职英语Ⅰ|1|9-10|5-6周,8-11周,13-16周,18周|新D302|田小霞
+数字技术应用基础|1|9-10|7周|新C307|唐谦
+测绘基础|2|1-2|3-5周,7-11周|新D310|冉凌
+高等数学Ⅰ|2|1-2|13-14周|新D306|胡丽娟
+思想道德与法治|2|1-2|15-16周,18周|新D310|赵广茹
+测绘基础|2|3-4|3-5周,7-11周|新D310|冉凌
+测绘基础|2|3-4|13-18周|新D310|冉凌
+大学体育Ⅰ|2|5-6|3-5周,7周,9-11周,13-16周,18周|新校区运动场|郑菱婕
+职业发展与就业指导(含专业认知）（上）|2|7-8|8-11周|新C405|徐梓峻
+大学生安全教育Ⅰ|2|7-8|13-16周|新C306|胡梅
+高职英语Ⅰ|2|9-10|3-5周,7周,9-11周,13-16周,18周|新D301|田小霞
+机械识图与制图（含CAD）|3|1-2|3-9周,11周|新D104|陈莉
+机械识图与制图（含CAD）|3|1-2|10周|新B203-1|陈莉
+机械识图与制图（含CAD）|3|1-2|13-15周,17-18周|主校区 D305工程软件实训室|陈莉
+机械识图与制图（含CAD）|3|1-2|16周|主校区 C309|陈莉
+机械识图与制图（含CAD）|3|3-4|13-15周,17-18周|主校区 D305工程软件实训室|陈莉
+机械识图与制图（含CAD）|3|3-4|16周|主校区 D305工程软件实训室|陈莉
+形势与政策Ⅰ|3|7-8|13-14周|新C307|曾霏
+无人机导论与飞行法规|4|1-2|3周|新D310|张宁
+机械识图与制图（含CAD）|4|1-2|10-11周,13-14周|XA208计算机实训室12|陈莉
+机械识图与制图（含CAD）|4|3-4|3-9周|新D303|陈莉
+大学体育Ⅰ|4|7-8|13-15周|新校区运动场|郑菱婕
+无人机导论与飞行法规|5|1-2|3-11周,13-18周|主校区 C306|张宁
+高等数学Ⅰ|5|3-4|11-13周(单),14-18周|新D305|胡丽娟
+大学生心理健康教育|5|5-6|6-9周|新D302|徐梓峻
+高等数学Ⅰ|5|5-6|10-11周,13-16周,18周|新C306|胡丽娟
+大学生心理健康教育|5|7-8|3-6周|新C306|徐梓峻
+测绘基础|7|1-2|3周|新D310|冉凌|#
+测绘基础|7|3-4|3周|新D310|冉凌|#
+大学体育Ⅰ|7|5-6|3周|新校区运动场|郑菱婕|#
+高职英语Ⅰ|7|9-10|3周|新D301|田小霞|#`},
+xh2604:{n:'铁道信号2604',m:'铁道信号自动控制',pr:'电工技能实训@黄刚、蔡辉@16;专业认知实习I@黄应超@12',c:`
+高职英语Ⅰ|1|3-4|3-11周,13-15周,17-18周|新C308|马玉玲
+信息技术|1|5-6|3-11周,13周|D204计算机实训室5|曾光
+信息技术|1|5-6|14-15周,17-18周|D204计算机实训室5|曾光
+信息技术|1|7-8|3-11周,13周|D204计算机实训室5|曾光
+思想道德与法治|1|9-10|3-11周,13-15周,17-18周|新C407|王梦莹
+高等数学Ⅰ|2|1-2|3-4周|新B203-1|魏盈盈
+大学生安全教育Ⅰ|2|1-2|5周,7-8周|新C404|何清清
+形势与政策Ⅰ|2|1-2|10-11周|新B201|朱润涵
+铁道概论（含城轨）|2|3-4|3-5周,7-11周,13-15周,17-18周|新C404|何杨杨
+电工技术|2|5-6|3-4周|新B102|董家兴
+电工技术|2|5-6|5周|新D409|董家兴
+大学体育Ⅰ|2|5-6|17周|新校区运动场|刘衡
+职业发展与就业指导(含专业认知）（上）|2|7-8|3-5周|新B205-2|曾科
+思想道德与法治|2|7-8|7-11周,13-15周,17-18周|新C408|王梦莹
+高职英语Ⅰ|3|1-2|3-11周,13周|新C309|马玉玲
+铁道概论（含城轨）|3|3-4|7-8周|新B201|何杨杨
+高等数学Ⅰ|4|1-2|3-11周,13-15周,17-18周|新D306|魏盈盈
+大学体育Ⅰ|4|3-4|3-11周,13-15周,17-18周|新校区运动场|刘衡
+电工技术|4|9-10|3-11周,13-15周,17-18周|新C308|董家兴
+大学生心理健康教育|5|1-2|3-10周|新C402|罗雪梅
+电工技术|5|3-4|3-11周,13-15周,17-18周|新B205-2|董家兴
+大学体育Ⅰ|5|5-6|5周|新校区运动场|刘衡
+大学生安全教育Ⅰ|7|1-2|3周|新C404|何清清|#
+铁道概论（含城轨）|7|3-4|3周|新C404|何杨杨|#
+电工技术|7|5-6|3周|新D308|董家兴|#
+职业发展与就业指导(含专业认知）（上）|7|7-8|3周|新B205-2|曾科|#`}
 };
 
-const colorDefs = [
-  ['高职英语Ⅰ','#E3F2FD','#1E88E5'],
-  ['大学生安全教育Ⅰ','#FFF3E0','#FB8C00'],
-  ['形势与政策Ⅰ','#FCE4EC','#D81B60'],
-  ['数字技术应用基础','#E8F5E9','#43A047'],
-  ['工程材料','#FFF9C4','#F9A825'],
-  ['工程测量','#EFEBE9','#6D4C41'],
-  ['高等数学Ⅰ','#EDE7F6','#5E35B1'],
-  ['工程制图','#E0F7FA','#00838F'],
-  ['大学体育Ⅰ','#F1F8E9','#7CB342'],
-  ['思想道德与法治','#FFEBEE','#E53935'],
-  ['职业发展与就业指导(含专业认知）（上）','#FFF8E1','#FF8F00'],
-  ['大学生心理健康教育','#E8EAF6','#3949AB'],
-  ['体能综合训练Ⅰ','#FDE9D9','#D35400'],
-  ['应急管理概论','#D5E8D4','#2E7D32'],
-  ['测绘基础','#E0F2F1','#00796B'],
-  ['机械识图与制图（含CAD）','#F3E5F5','#7B1FA2'],
-  ['无人机导论与飞行法规','#E1F5FE','#0277BD'],
-  ['信息技术','#E1F5FE','#0288D1'],
-  ['铁道概论（含城轨）','#F9FBE7','#827717'],
-  ['电工技术','#ECEFF1','#455A64']
+/* 解析 RAW → CLASS_DATA */
+const CLASS_DATA={};
+Object.keys(RAW).forEach(k=>{
+  const r=RAW[k];
+  CLASS_DATA[k]={
+    name:r.n, major:r.m,
+    practice: r.pr? r.pr.split(';').filter(Boolean).map(x=>{const a=x.split('@');return{name:a[0],teacher:a[1],week:+a[2]};}) : [],
+    notices:[BUKE_NOTICE],
+    courses: r.c.split('\n').map(l=>l.trim()).filter(Boolean).map(l=>{
+      const p=l.split('|'), ss=p[2].split('-');
+      const o={n:p[0],d:+p[1],s:[+ss[0],+ss[1]],w:p[3],p:p[4],t:p[5]};
+      if(p[6]) o.note=BUKE_NOTE;
+      return o;
+    })
+  };
+});
+
+const colorDefs=[
+['高职英语Ⅰ','#E3F2FD','#1E88E5'],['大学生安全教育Ⅰ','#FFF3E0','#FB8C00'],
+['形势与政策Ⅰ','#FCE4EC','#D81B60'],['数字技术应用基础','#E8F5E9','#43A047'],
+['工程材料','#FFF9C4','#F9A825'],['工程测量','#EFEBE9','#6D4C41'],
+['高等数学Ⅰ','#EDE7F6','#5E35B1'],['工程制图','#E0F7FA','#00838F'],
+['大学体育Ⅰ','#F1F8E9','#7CB342'],['思想道德与法治','#FFEBEE','#E53935'],
+['职业发展与就业指导(含专业认知）（上）','#FFF8E1','#FF8F00'],['大学生心理健康教育','#E8EAF6','#3949AB'],
+['体能综合训练Ⅰ','#FDE9D9','#D35400'],['应急管理概论','#D5E8D4','#2E7D32'],
+['测绘基础','#E0F2F1','#00796B'],['机械识图与制图（含CAD）','#F3E5F5','#7B1FA2'],
+['无人机导论与飞行法规','#E1F5FE','#0277BD'],['信息技术','#E1F5FE','#0288D1'],
+['铁道概论（含城轨）','#F9FBE7','#827717'],['电工技术','#ECEFF1','#455A64']
 ];
 
-/* ★上下课时间：以后改时间只改这里；timeFri=周五特殊时间 */
-const sections = [
-  {label:'第1-2节',time:'8:40～10:10',period:'上午',start:1,end:2},
-  {label:'第3-4节',time:'10:30～12:00',period:'上午',start:3,end:4},
-  {label:'第5-6节',time:'14:00～15:30',timeFri:'周五13:30～15:00',period:'下午',start:5,end:6},
-  {label:'第7-8节',time:'15:40～17:10',timeFri:'周五15:10～16:40',period:'下午',start:7,end:8},
-  {label:'第9-10节',time:'19:00～20:30',period:'晚课',start:9,end:10}
+/* ★上下课时间（周五下午一点半上课） */
+const sections=[
+{label:'第1-2节',time:'8:40～10:10',period:'上午',start:1,end:2},
+{label:'第3-4节',time:'10:30～12:00',period:'上午',start:3,end:4},
+{label:'第5-6节',time:'14:00～15:30',timeFri:'周五13:30～15:00',period:'下午',start:5,end:6},
+{label:'第7-8节',time:'15:40～17:10',timeFri:'周五15:10～16:40',period:'下午',start:7,end:8},
+{label:'第9-10节',time:'19:00～20:30',period:'晚课',start:9,end:10}
 ];
 
 /* 工具 */
-function parseWeeks(str){
-  const res = new Set();
-  const s = String(str||'').replace(/\s+/g,'');
-  s.split(',').forEach(part=>{
-    if(!part) return;
-    let p = part;
-    const odd = p.includes('单'), even = p.includes('双');
-    p = p.replace('(单)','').replace('（单）','').replace('(双)','').replace('（双）','').replace('周','');
-    if(p.includes('-')){
-      const seg = p.split('-').map(Number);
-      for(let i=seg[0]; i<=seg[1]; i++){
-        if(odd && i%2===0) continue;
-        if(even && i%2===1) continue;
-        res.add(i);
-      }
-    } else if(p){ res.add(Number(p)); }
-  });
-  return res;
-}
-function simplifyWeeks(str){ return String(str||'').replace(/\s+/g,'').replace(/周/g,'').replace(/,/g,'、')+'周'; }
-function colorOf(name){ for(const [n,bg,bd] of colorDefs){ if(n===name) return [bg,bd]; } return ['#F5F5F5','#9E9E9E']; }
-function fmtDate(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
-function weekRange(week){
-  const mon = new Date(START_DATE);
-  mon.setDate(START_DATE.getDate()+(week-1)*7);
-  const sun = new Date(mon);
-  sun.setDate(mon.getDate()+6);
-  return fmtDate(mon)+' ～ '+fmtDate(sun)+'（周一 ～ 周日）';
-}
-function getTodayWeek(){
-  const now = new Date();
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const start = new Date(START_DATE.getFullYear(), START_DATE.getMonth(), START_DATE.getDate());
-  const diff = Math.round((today - start) / 86400000);
-  if(diff < 0) return 1;
-  const week = Math.floor(diff / 7) + 1;
-  if(week > TOTAL_WEEKS) return TOTAL_WEEKS;
-  return week;
-}
-function getTodayDay(){
-  const d = new Date().getDay(); // 0=周日 1=周一 ... 6=周六
-  return d === 0 ? 7 : d;
-}
-function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+function parseWeeks(str){const res=new Set();String(str||'').replace(/\s+/g,'').split(',').forEach(part=>{
+  if(!part)return;let p=part;const odd=p.includes('单'),even=p.includes('双');
+  p=p.replace('(单)','').replace('（单）','').replace('(双)','').replace('（双）','').replace('周','');
+  if(p.includes('-')){const seg=p.split('-').map(Number);for(let i=seg[0];i<=seg[1];i++){if(odd&&i%2===0)continue;if(even&&i%2===1)continue;res.add(i);}}
+  else if(p){res.add(Number(p));}});return res;}
+function simplifyWeeks(str){return String(str||'').replace(/\s+/g,'').replace(/周/g,'').replace(/,/g,'、')+'周';}
+function colorOf(name){for(const c of colorDefs){if(c[0]===name)return [c[1],c[2]];}return ['#F5F5F5','#9E9E9E'];}
+function fmtDate(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function weekRange(w){const mon=new Date(START_DATE);mon.setDate(START_DATE.getDate()+(w-1)*7);const sun=new Date(mon);sun.setDate(mon.getDate()+6);return fmtDate(mon)+' ～ '+fmtDate(sun)+'（周一 ～ 周日）';}
+function getTodayWeek(){const now=new Date();const t=new Date(now.getFullYear(),now.getMonth(),now.getDate());const s=new Date(START_DATE.getFullYear(),START_DATE.getMonth(),START_DATE.getDate());const diff=Math.round((t-s)/86400000);if(diff<0)return 1;const wk=Math.floor(diff/7)+1;return wk>TOTAL_WEEKS?TOTAL_WEEKS:wk;}
+function getTodayDay(){const d=new Date().getDay();return d===0?7:d;}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
+function ck(key,d,s1){return key+'|'+d+'|'+s1;}
 
-/* 存储 */
-function loadStoredData(){ try{ return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; }catch(e){ return {}; } }
-function saveStoredData(all){ localStorage.setItem(STORE_KEY, JSON.stringify(all)); }
+/* 本地覆盖：没动过的格子读官方，动过的保留本地 */
 function getClassData(key){
-  const all = loadStoredData();
-  if(all[key]) return all[key];
-  const def = CLASS_DATA[key];
-  return { courses: def.courses.map(c=>({...c})), practice: def.practice.map(p=>({...p})), notices: def.notices.slice() };
+  const def=CLASS_DATA[key];
+  const base={courses:def.courses.map(c=>({...c})),practice:def.practice.map(p=>({...p})),notices:def.notices.slice()};
+  const all=loadData(), over=(all.__o__&&all.__o__[key])||{};
+  Object.keys(over).forEach(k=>{
+    const parts=k.split('|');const d=+parts[1],s1=+parts[2];
+    base.courses=base.courses.filter(c=>!(c.d===d&&c.s[0]===s1));
+    const val=over[k];
+    if(val!==false) val.forEach(it=>{base.courses.push({...it,d,s:[s1,it.s[1]||s1+1],_local:true});});
+  });
+  return base;
 }
+function setCell(key,d,s1,val){const all=loadData();if(!all.__o__)all.__o__={};if(!all.__o__[key])all.__o__[key]={};all.__o__[key][ck(key,d,s1)]=val;saveData(all);}
+function clearCell(key,d,s1){const all=loadData();if(all.__o__&&all.__o__[key]){delete all.__o__[key][ck(key,d,s1)];saveData(all);}}
+function getCellCourses(key,d,s1){return getClassData(key).courses.filter(c=>c.d===d&&c.s[0]===s1).map(c=>{const o={...c};delete o._local;return o;});}
 
-/* 主课表 */
-let currentWeek = getTodayWeek();
-let currentClassKey = 'dq';
-let todayWeek = getTodayWeek();
-let todayDay = getTodayDay();
-
+/* 渲染 */
 function render(){
-  const data = getClassData(currentClassKey);
-  document.getElementById('weekLabel').textContent = '第 '+currentWeek+' 周';
-  document.getElementById('weekRange').textContent = weekRange(currentWeek);
-  document.getElementById('weekSelect').value = currentWeek;
-  document.getElementById('prevBtn').disabled = (currentWeek<=1);
-  document.getElementById('nextBtn').disabled = (currentWeek>=TOTAL_WEEKS);
-
-  const noticeEl = document.getElementById('noticeArea');
-  if(data.notices && data.notices.length){
-    noticeEl.style.display = 'block';
-    noticeEl.innerHTML = data.notices.map(t=>'<div>📌 '+esc(t)+'</div>').join('');
-  } else { noticeEl.style.display = 'none'; }
-
-  const banner = document.getElementById('pracBanner');
-  const prac = (data.practice||[]).filter(p=>p.week===currentWeek);
-  if(prac.length){
-    banner.style.display = 'block';
-    banner.innerHTML = prac.map(p=>'<div>🔧 本周实践：<b>'+esc(p.name)+'</b>（指导教师：'+esc(p.teacher)+'）</div>').join('');
-  } else { banner.style.display = 'none'; }
-
-  const courses = data.courses.map(c=>({...c, weeksSet: parseWeeks(c.w)}));
-  const tbody = document.getElementById('gridBody');
-  tbody.innerHTML = '';
+  const data=getClassData(currentClassKey);
+  document.getElementById('weekLabel').textContent='第 '+currentWeek+' 周';
+  document.getElementById('weekRange').textContent=weekRange(currentWeek);
+  document.getElementById('weekSelect').value=currentWeek;
+  document.getElementById('prevBtn').disabled=(currentWeek<=1);
+  document.getElementById('nextBtn').disabled=(currentWeek>=TOTAL_WEEKS);
+  const ne=document.getElementById('noticeArea');
+  if(GLOBAL_NOTICE){ne.style.display='block';ne.innerHTML=GLOBAL_NOTICE.split('\n').map(t=>'<div>'+esc(t)+'</div>').join('');}else{ne.style.display='none';}
+  const pb=document.getElementById('pracBanner');
+  const prac=(data.practice||[]).filter(p=>p.week===currentWeek);
+  if(prac.length){pb.style.display='block';pb.innerHTML=prac.map(p=>'<div>🔧 本周实践：<b>'+esc(p.name)+'</b>（指导教师：'+esc(p.teacher)+'）</div>').join('');}else{pb.style.display='none';}
+  const courses=data.courses.map(c=>({...c,weeksSet:parseWeeks(c.w)}));
+  const tbody=document.getElementById('gridBody');
+  tbody.innerHTML='';
   document.querySelectorAll('thead th').forEach((th,idx)=>{
-    if(idx === todayDay && currentWeek === todayWeek){
-      th.style.background = '#fff3b0';
-    } else if(idx === 6 || idx === 7){
-      th.style.background = '#fbf3e6';
-    } else {
-      th.style.background = '#f0f4f9';
-    }
+    if(idx===todayDay&&currentWeek===todayWeek)th.style.background='#fff3b0';
+    else if(idx===6||idx===7)th.style.background='#fbf3e6';
+    else th.style.background='#f0f4f9';
   });
   sections.forEach(sec=>{
-    const tr = document.createElement('tr');
-    const th = document.createElement('td');
-    th.className = 'sec-label';
-    th.innerHTML = '<div class="sec-name">'+sec.label+'</div><div class="period">'+sec.time+'</div>'+(sec.timeFri?'<div class="period">'+sec.timeFri+'</div>':'')+'<div class="period">'+sec.period+'</div>';
+    const tr=document.createElement('tr');
+    const th=document.createElement('td');
+    th.className='sec-label';
+    th.innerHTML='<div class="sec-name">'+sec.label+'</div><div class="period">'+sec.time+'</div>'+(sec.timeFri?'<div class="period">'+sec.timeFri+'</div>':'')+'<div class="period">'+sec.period+'</div>';
     tr.appendChild(th);
     DAYS.forEach(d=>{
-      const td = document.createElement('td');
-      if(d>=6) td.style.background = '#fffcf6';
-      if(currentWeek === todayWeek && d === todayDay) td.style.background = '#fff9c4';
-      const hits = courses.filter(c=>c.d===d && c.s[0]===sec.start && c.s[1]===sec.end && c.weeksSet.has(currentWeek));
+      const td=document.createElement('td');
+      if(d>=6)td.style.background='#fffcf6';
+      if(currentWeek===todayWeek&&d===todayDay)td.style.background='#fff9c4';
+      const hits=courses.filter(c=>c.d===d&&c.s[0]===sec.start&&c.s[1]===sec.end&&c.weeksSet.has(currentWeek));
       if(hits.length){
         hits.forEach(c=>{
-          const [bg,bd] = colorOf(c.n);
-          const div = document.createElement('div');
-          div.className = 'course';
-          div.style.background = bg;
-          div.style.borderLeftColor = bd;
-          div.innerHTML = '<div class="c-name"></div><div class="c-info"></div><div class="c-weeks"></div><div class="c-note"></div>';
-          div.querySelector('.c-name').textContent = c.n;
-          div.querySelector('.c-info').textContent = c.p+' · '+c.t;
-          div.querySelector('.c-weeks').textContent = simplifyWeeks(c.w);
-          const noteEl = div.querySelector('.c-note');
-          if(c.note){ noteEl.textContent = '📌 '+c.note; } else { noteEl.remove(); }
+          const col=colorOf(c.n);
+          const div=document.createElement('div');
+          div.className='course'+(c._local?' local':'');
+          div.style.background=col[0];div.style.borderLeftColor=col[1];
+          div.innerHTML='<div class="c-name"></div><div class="c-info"></div><div class="c-weeks"></div><div class="c-note"></div>';
+          div.querySelector('.c-name').textContent=c.n;
+          div.querySelector('.c-info').textContent=c.p+' · '+c.t;
+          div.querySelector('.c-weeks').textContent=simplifyWeeks(c.w);
+          const no=div.querySelector('.c-note');
+          if(c.note)no.textContent='📌 '+c.note;else no.remove();
+          bindCell(div,currentClassKey,d,sec.start,sec.end);
           td.appendChild(div);
         });
-      } else {
-        td.innerHTML = '<div class="empty">—</div>';
+      }else{
+        const e=document.createElement('div');e.className='empty';e.textContent='—';
+        bindCell(e,currentClassKey,d,sec.start,sec.end);
+        td.appendChild(e);
       }
       tr.appendChild(td);
     });
     tbody.appendChild(tr);
   });
-
-  const names = [...new Set(courses.map(c=>c.n))];
-  document.getElementById('legendItems').innerHTML = names.map(n=>{
-    const [bg,bd] = colorOf(n);
-    return '<span class="legend-item"><span class="dot" style="background:'+bd+'"></span>'+esc(n)+'</span>';
-  }).join('');
+  const names=[...new Set(courses.map(c=>c.n))];
+  document.getElementById('legendItems').innerHTML=names.map(n=>{const col=colorOf(n);return '<span class="legend-item"><span class="dot" style="background:'+col[1]+'"></span>'+esc(n)+'</span>';}).join('');
 }
+
+/* 格子点击：只有登录后才能编辑 */
+function bindCell(el,key,d,s1,s2){
+  el.addEventListener('click',()=>{
+    if(loginRole){ openCellEditor(key,d,s1,s2); }
+  });
+}
+
+/* 格子编辑 */
+let cellCtx=null;
+function openCellEditor(key,d,s1,s2){
+  cellCtx={key,d,s1,s2};
+  const cur=getCellCourses(key,d,s1), first=cur[0];
+  document.getElementById('cellTitle').textContent='编辑 '+CLASS_DATA[key].name+' 周'+['','一','二','三','四','五','六','日'][d]+' 第'+s1+'-'+s2+'节';
+  document.getElementById('c_name').value=first?first.n:'';
+  document.getElementById('c_place').value=first?first.p:'';
+  document.getElementById('c_teacher').value=first?first.t:'';
+  document.getElementById('c_weeks').value=first?first.w:'';
+  document.getElementById('cellModal').style.display='block';
+}
+function closeCellEditor(){document.getElementById('cellModal').style.display='none';cellCtx=null;}
+function doCellSave(){
+  if(!cellCtx)return;
+  const n=document.getElementById('c_name').value.trim();
+  if(!n){alert('请输入课程名，或点「设为无课」');return;}
+  setCell(cellCtx.key,cellCtx.d,cellCtx.s1,[{n,p:document.getElementById('c_place').value.trim(),t:document.getElementById('c_teacher').value.trim(),w:document.getElementById('c_weeks').value.trim(),s:[cellCtx.s1,cellCtx.s2]}]);
+  closeCellEditor();render();
+}
+function doCellClear(){if(!cellCtx)return;setCell(cellCtx.key,cellCtx.d,cellCtx.s1,false);closeCellEditor();render();}
+function doCellClearLocal(){if(!cellCtx)return;clearCell(cellCtx.key,cellCtx.d,cellCtx.s1);closeCellEditor();render();}
 
 /* 水印 */
 function renderWatermark(){
-  const wm = document.getElementById('watermark');
-  wm.innerHTML = '';
-  const cols = Math.ceil(window.innerWidth/90)+1;
-  const rows = Math.ceil(window.innerHeight/70)+1;
-  for(let r=0;r<rows;r++){
-    for(let c=0;c<cols;c++){
-      const s = document.createElement('span');
-      s.textContent = 'yhr';
-      s.style.left = (c*90)+'px';
-      s.style.top = (r*70)+'px';
-      wm.appendChild(s);
-    }
+  const wm=document.getElementById('watermark');wm.innerHTML='';
+  const cols=Math.ceil(window.innerWidth/90)+1, rows=Math.ceil(window.innerHeight/70)+1;
+  for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){
+    const s=document.createElement('span');s.textContent='yhr';
+    s.style.left=(c*90)+'px';s.style.top=(r*70)+'px';wm.appendChild(s);
   }
 }
-window.addEventListener('resize', renderWatermark);
+window.addEventListener('resize',renderWatermark);
 
-/* 初始化主界面 */
+/* 管理登录 */
+function openAdmin(hint){
+  document.getElementById('adminModal').style.display='block';
+  const lh=document.getElementById('loginHint');
+  if(loginRole){
+    document.getElementById('loginArea').style.display='none';
+    document.getElementById('adminArea').style.display='block';
+    lh.style.display='none';
+  }else{
+    document.getElementById('loginArea').style.display='flex';
+    document.getElementById('adminArea').style.display='none';
+    if(hint){lh.textContent=hint;lh.style.display='block';}else{lh.style.display='none';}
+  }
+}
+function closeAdmin(){document.getElementById('adminModal').style.display='none';}
+
+/* 初始化 */
 function init(){
-  const cs = document.getElementById('classSelect');
-  Object.entries(CLASS_DATA).forEach(([key,v])=>{
-    const opt = document.createElement('option');
-    opt.value = key;
-    opt.textContent = v.name+'（'+v.major+'）';
+  const cs=document.getElementById('classSelect');
+  Object.keys(CLASS_DATA).forEach(k=>{
+    const opt=document.createElement('option');opt.value=k;
+    opt.textContent=CLASS_DATA[k].name+'（'+CLASS_DATA[k].major+'）';
     cs.appendChild(opt);
   });
-  cs.value = 'dq';
-  cs.addEventListener('change', e=>{ currentClassKey = e.target.value; render(); });
+  cs.value='dq';
+  cs.addEventListener('change',e=>{currentClassKey=e.target.value;render();});
+  const ws=document.getElementById('weekSelect');
+  for(let i=1;i<=TOTAL_WEEKS;i++){const opt=document.createElement('option');opt.value=i;opt.textContent='第 '+i+' 周';ws.appendChild(opt);}
+  document.getElementById('prevBtn').addEventListener('click',()=>{if(currentWeek>1){currentWeek--;render();}});
+  document.getElementById('nextBtn').addEventListener('click',()=>{if(currentWeek<TOTAL_WEEKS){currentWeek++;render();}});
+  ws.addEventListener('change',e=>{currentWeek=Number(e.target.value);render();});
 
-  const ws = document.getElementById('weekSelect');
-  for(let i=1;i<=TOTAL_WEEKS;i++){
-    const opt = document.createElement('option');
-    opt.value = i;
-    opt.textContent = '第 '+i+' 周';
-    ws.appendChild(opt);
-  }
-  document.getElementById('prevBtn').addEventListener('click',()=>{ if(currentWeek>1){ currentWeek--; render(); } });
-  document.getElementById('nextBtn').addEventListener('click',()=>{ if(currentWeek<TOTAL_WEEKS){ currentWeek++; render(); } });
-  ws.addEventListener('change',e=>{ currentWeek = Number(e.target.value); render(); });
+  document.getElementById('adminLink').addEventListener('click',()=>openAdmin());
+  document.getElementById('adminClose').addEventListener('click',closeAdmin);
+  document.getElementById('loginBtn').addEventListener('click',()=>{
+    const v=document.getElementById('pwdInput').value;
+    if(v===ADMIN_PASSWORD){
+      loginRole='admin';
+      document.getElementById('loginErr').textContent='';
+      document.getElementById('loginHint').style.display='none';
+      document.getElementById('loginArea').style.display='none';
+      document.getElementById('adminArea').style.display='block';
+      document.getElementById('statBox').style.display='block';
+      document.getElementById('roleHint').style.display='block';
+      document.getElementById('roleHint').textContent='管理员模式：点课表格子即可修改课程。';
+    }else if(v===LOCAL_PASSWORD){
+      loginRole='local';
+      document.getElementById('loginErr').textContent='';
+      document.getElementById('loginHint').style.display='none';
+      closeAdmin();
+      alert('已进入本地调课模式：点击课表中任意格子即可修改，改动仅你自己可见。');
+    }else{
+      document.getElementById('loginErr').textContent='密码错误';
+    }
+  });
+  document.getElementById('reloadDefaultBtn').addEventListener('click',()=>{
+    if(!confirm('确定清掉自己对所有班的本地改动、恢复官方课表吗？'))return;
+    const all=loadData();delete all.__o__;saveData(all);render();
+    alert('已恢复官方课表');
+  });
+
+  document.getElementById('cellClose').addEventListener('click',closeCellEditor);
+  document.getElementById('cellCancel').addEventListener('click',closeCellEditor);
+  document.getElementById('cellSave').addEventListener('click',doCellSave);
+  document.getElementById('cellClear').addEventListener('click',doCellClear);
+  document.getElementById('cellClearLocal').addEventListener('click',doCellClearLocal);
+
+  document.getElementById('disclaimerLink').addEventListener('click',()=>{document.getElementById('disclaimerModal').style.display='block';});
+  document.getElementById('disclaimerClose').addEventListener('click',()=>{document.getElementById('disclaimerModal').style.display='none';});
 
   renderWatermark();
   render();
 }
-
-/* 管理功能 */
-let adminUnlocked = false;
-let editCourses = [];
-let editingClassKey = 'dq';
-
-function openAdmin(){
-  document.getElementById('adminModal').style.display = 'block';
-  if(adminUnlocked){
-    document.getElementById('loginArea').style.display = 'none';
-    document.getElementById('adminArea').style.display = 'block';
-    fillAdminClassSelect();
-    loadEditCourses();
-  } else {
-    document.getElementById('loginArea').style.display = 'flex';
-    document.getElementById('adminArea').style.display = 'none';
-  }
-}
-function closeAdmin(){ document.getElementById('adminModal').style.display = 'none'; }
-
-function fillAdminClassSelect(){
-  const sel = document.getElementById('adminClassSelect');
-  sel.innerHTML = '';
-  Object.entries(CLASS_DATA).forEach(([key,v])=>{
-    const opt = document.createElement('option');
-    opt.value = key;
-    opt.textContent = v.name;
-    sel.appendChild(opt);
-  });
-  sel.value = editingClassKey;
-}
-
-function loadEditCourses(){
-  const data = getClassData(editingClassKey);
-  editCourses = data.courses.map(c=>({...c}));
-  renderAdminList();
-}
-
-function saveEdit(){
-  const all = loadStoredData();
-  const cur = getClassData(editingClassKey);
-  all[editingClassKey] = {
-    courses: editCourses.map(c=>({...c})),
-    practice: (cur.practice||[]).map(p=>({...p})),
-    notices: (cur.notices||[]).slice()
-  };
-  saveStoredData(all);
-  if(editingClassKey === currentClassKey) render();
-}
-
-function renderAdminList(){
-  const list = document.getElementById('adminCourseList');
-  if(!editCourses.length){
-    list.innerHTML = '<div style="color:#98a2b3;font-size:13px;padding:10px 0;">当前班级暂无课程</div>';
-    return;
-  }
-  list.innerHTML = editCourses.map((c,i)=>{
-    const [bg,bd] = colorOf(c.n);
-    const dayTxt = ['','周一','周二','周三','周四','周五','周六','周日'][c.d] || ('周'+c.d);
-    const note = c.note ? ' 📌'+esc(c.note) : '';
-    return '<div class="course-row" style="border-left:4px solid '+bd+'">'+
-      '<div class="txt"><b>'+esc(c.n)+'</b>　'+dayTxt+' 第'+c.s[0]+'-'+c.s[1]+'节　'+esc(simplifyWeeks(c.w))+'　'+esc(c.p)+' · '+esc(c.t)+note+'</div>'+
-      '<div class="btns"><button onclick="editCourse('+i+')">编辑</button>'+
-      '<button class="del" onclick="delCourse('+i+')">删除</button></div></div>';
-  }).join('');
-}
-
-function editCourse(i){
-  const c = editCourses[i];
-  if(!c) return;
-  document.getElementById('f_name').value = c.n;
-  document.getElementById('f_day').value = c.d;
-  document.getElementById('f_s1').value = c.s[0];
-  document.getElementById('f_s2').value = c.s[1];
-  document.getElementById('f_weeks').value = c.w;
-  document.getElementById('f_place').value = c.p;
-  document.getElementById('f_teacher').value = c.t;
-  document.getElementById('f_note').value = c.note || '';
-  document.getElementById('f_editIndex').value = i;
-  document.getElementById('courseForm').style.display = 'grid';
-}
-function delCourse(i){
-  if(!confirm('确定删除这门课吗？')) return;
-  editCourses.splice(i,1);
-  saveEdit();
-  renderAdminList();
-}
-function addCourse(){
-  ['f_name','f_s1','f_s2','f_weeks','f_place','f_teacher','f_note'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('f_day').value = 1;
-  document.getElementById('f_editIndex').value = -1;
-  document.getElementById('courseForm').style.display = 'grid';
-}
-function saveForm(){
-  const name = document.getElementById('f_name').value.trim();
-  const day = Number(document.getElementById('f_day').value);
-  const s1 = Number(document.getElementById('f_s1').value);
-  const s2 = Number(document.getElementById('f_s2').value);
-  const weeks = document.getElementById('f_weeks').value.trim();
-  if(!name || !day || !s1 || !s2 || !weeks){
-    alert('请至少填写：课程名、星期、开始节、结束节、周次');
-    return;
-  }
-  const row = { n:name, d:day, s:[s1,s2], w:weeks, p:document.getElementById('f_place').value.trim(), t:document.getElementById('f_teacher').value.trim() };
-  const note = document.getElementById('f_note').value.trim();
-  if(note) row.note = note;
-  const idx = Number(document.getElementById('f_editIndex').value);
-  if(idx >= 0){ editCourses[idx] = row; } else { editCourses.push(row); }
-  saveEdit();
-  document.getElementById('courseForm').style.display = 'none';
-  renderAdminList();
-}
-
-function initAdmin(){
-  document.getElementById('adminLink').addEventListener('click', openAdmin);
-  document.getElementById('adminClose').addEventListener('click', closeAdmin);
-  document.getElementById('loginBtn').addEventListener('click', ()=>{
-    if(document.getElementById('pwdInput').value === ADMIN_PASSWORD){
-      adminUnlocked = true;
-      document.getElementById('loginErr').textContent = '';
-      document.getElementById('loginArea').style.display = 'none';
-      document.getElementById('adminArea').style.display = 'block';
-      fillAdminClassSelect();
-      loadEditCourses();
-    } else {
-      document.getElementById('loginErr').textContent = '密码错误';
-    }
-  });
-  document.getElementById('adminClassSelect').addEventListener('change', e=>{
-    editingClassKey = e.target.value;
-    loadEditCourses();
-  });
-  document.getElementById('addCourseBtn').addEventListener('click', addCourse);
-  document.getElementById('formSave').addEventListener('click', saveForm);
-  document.getElementById('formCancel').addEventListener('click', ()=>{
-    document.getElementById('courseForm').style.display = 'none';
-  });
-  document.getElementById('reloadDefaultBtn').addEventListener('click', ()=>{
-    if(!confirm('确定恢复 '+CLASS_DATA[editingClassKey].name+' 的默认课表吗？当前所有修改将丢失。')) return;
-    const all = loadStoredData();
-    delete all[editingClassKey];
-    saveStoredData(all);
-    loadEditCourses();
-    if(editingClassKey === currentClassKey) render();
-  });
-  document.getElementById('exportBtn').addEventListener('click', ()=>{
-    document.getElementById('ioArea').value = JSON.stringify(loadStoredData(), null, 2);
-  });
-  document.getElementById('importBtn').addEventListener('click', ()=>{
-    try{
-      const obj = JSON.parse(document.getElementById('ioArea').value);
-      saveStoredData(obj);
-      loadEditCourses();
-      if(editingClassKey === currentClassKey) render();
-      alert('导入成功');
-    }catch(e){ alert('导入失败：JSON格式错误'); }
-  });
-}
-
 init();
-initAdmin();
-document.getElementById('disclaimerLink').addEventListener('click', ()=>{
-  document.getElementById('disclaimerModal').style.display = 'block';
-});
-document.getElementById('disclaimerClose').addEventListener('click', ()=>{
-  document.getElementById('disclaimerModal').style.display = 'none';
-});
 </script>
 <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 </body>
