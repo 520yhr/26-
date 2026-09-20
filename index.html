@@ -38,7 +38,6 @@ thead th.wknd{background:#fbf3e6;color:#9a6a00;}
 .course.old .c-name{text-decoration:line-through;text-decoration-color:#c0392b;}
 .course.old::after{content:'原课';position:absolute;top:2px;right:4px;font-size:10px;color:#889;background:#eef1f5;border-radius:3px;padding:1px 4px;}
 
-/* ═══ 喜庆假期样式 ═══ */
 .course.holiday{
   background:linear-gradient(135deg,#fff0f0 0%,#ffe4e4 100%)!important;
   border-left-color:#c0392b!important;
@@ -73,6 +72,24 @@ thead th.wknd{background:#fbf3e6;color:#9a6a00;}
 }
 .course.cancelled .c-note{color:#b35900!important;font-weight:700!important;}
 
+.course.postponed{
+  background:linear-gradient(135deg,#fffbe6 0%,#fff3c4 100%)!important;
+  border-left-color:#f5c518!important;
+  border-left-style:solid!important;
+  border-left-width:5px!important;
+  box-shadow:0 0 0 2px rgba(245,197,24,.25),0 1px 4px rgba(245,197,24,.15)!important;
+}
+.course.postponed .c-name{color:#8a6d00!important;}
+.course.postponed::after{
+  content:'🎊 延后+假期';
+  position:absolute;top:2px;right:4px;font-size:10px;color:#fff;
+  background:linear-gradient(135deg,#f5c518,#d4a800);
+  border-radius:3px;padding:1px 5px;font-weight:700;
+  box-shadow:0 1px 2px rgba(212,168,0,.4);
+  text-shadow:0 1px 1px rgba(0,0,0,.2);
+}
+.course.postponed .c-note{color:#8a6d00!important;font-weight:700!important;}
+
 .orig-under{font-size:10px;color:#aab;margin-top:4px;padding-top:3px;border-top:1px dashed #e0d0d0;line-height:1.4;}
 .orig-under b{color:#99a;font-weight:600;}
 
@@ -84,7 +101,6 @@ thead th.wknd{background:#fbf3e6;color:#9a6a00;}
 }
 .holiday-banner span{font-size:18px;margin-right:6px;}
 
-/* ═══ 绝地潜兵2 彩蛋按钮（黑金配色，接近游戏 logo） ═══ */
 .hd2-btn{
   display:inline-flex;align-items:center;gap:6px;
   background:#0d0d0d;
@@ -102,14 +118,9 @@ thead th.wknd{background:#fbf3e6;color:#9a6a00;}
   box-shadow:0 0 12px rgba(245,197,24,.8),0 0 20px rgba(245,197,24,.4);
   transform:translateY(-1px);
 }
-.hd2-btn .hd2-icon{
-  font-size:13px;line-height:1;
-  filter:drop-shadow(0 0 3px rgba(245,197,24,.6));
-}
+.hd2-btn .hd2-icon{font-size:13px;line-height:1;filter:drop-shadow(0 0 3px rgba(245,197,24,.6));}
 .hd2-btn:hover .hd2-icon{filter:none;}
 .hd2-btn .hd2-text{font-size:10px;}
-
-/* ═══ 样式结束 ═══ */
 
 .c-name{font-weight:700;font-size:12.5px;line-height:1.35;padding-right:58px;}
 .c-info{font-size:11.5px;color:#455;margin-top:3px;}
@@ -252,8 +263,9 @@ footer a{color:#4a78c2;text-decoration:none;font-weight:700;}
 </div>
 
 <script>
-/* ═══ 数据层 ═══ */
 const STORE_KEY='kb_data_v2';
+const CLASS_KEY='kb_last_class_v1';
+const WEEK_KEY='kb_last_week_v1';
 function loadData(){try{return JSON.parse(localStorage.getItem(STORE_KEY))||{};}catch(e){return {};}}
 function saveData(all){localStorage.setItem(STORE_KEY,JSON.stringify(all));}
 
@@ -265,6 +277,13 @@ const LOCAL_PASSWORD='1234';
 let loginRole='';
 let currentWeek=getTodayWeek(),currentClassKey='dq',todayWeek=getTodayWeek(),todayDay=getTodayDay();
 
+try{
+  const savedClass=localStorage.getItem(CLASS_KEY);
+  if(savedClass && savedClass!=='') currentClassKey=savedClass;
+  const savedWeek=localStorage.getItem(WEEK_KEY);
+  if(savedWeek && !isNaN(+savedWeek)){const w=+savedWeek; if(w>=1&&w<=TOTAL_WEEKS) currentWeek=w;}
+}catch(e){}
+
 const BUKE_NOTE='补10月6日（第6周周二）';
 const BUKE_NOTICE='调课：9月20日（第3周周日）补上 10月6日（第6周周二）的课程。';
 const GLOBAL_NOTICE='📌 '+BUKE_NOTICE;
@@ -274,7 +293,6 @@ const MAKEUP_FROM_DAY=2;
 const MAKEUP_TO_WEEK=3;
 const MAKEUP_TO_DAY=7;
 
-/* ═══ 第4周周一「新版覆盖」 ═══ */
 const WEEK4_MON_NEW={
   dq:[
     {d:1,s:[1,2],n:'高职英语Ⅰ',p:'新C409',t:'田小霞'},
@@ -310,34 +328,28 @@ const WEEK4_MON_NEW={
   ]
 };
 
-/* ═══ 中秋国庆假期（所有班级） ═══
-   2026 中秋：9/25（周五）～ 9/27（周日）
-   2026 国庆：10/1（周四）～ 10/7（周三）
-   中间 9/28～9/30 正常上课。
-   规则：假期当天所有格子显示假期喜庆条 + 下方保留原课。 */
-const HOLIDAY_RANGES=[
-  {startWeek:4,startDay:5,endWeek:4,endDay:7,label:'中秋假期',range:'9/25 ～ 9/27'},
-  {startWeek:5,startDay:4,endWeek:6,endDay:3,label:'国庆假期',range:'10/1 ～ 10/7'}
-];
+/* ═══ 所有班级统一：9/25（周五）～ 10/7（周三）连休 ═══ */
+const LONG_HOLIDAY={startWeek:4,startDay:5,endWeek:6,endDay:3,label:'中秋·国庆连休',range:'9/25 ～ 10/7'};
+
 function isHoliday(week,day){
   const totalCur=week*7+day;
-  return HOLIDAY_RANGES.some(h=>{
-    const s=h.startWeek*7+h.startDay, e=h.endWeek*7+h.endDay;
-    return totalCur>=s && totalCur<=e;
-  });
-}
-function getHoliday(week,day){
-  const totalCur=week*7+day;
-  for(const h of HOLIDAY_RANGES){
-    const s=h.startWeek*7+h.startDay, e=h.endWeek*7+h.endDay;
-    if(totalCur>=s && totalCur<=e) return h;
-  }
-  return null;
+  const s=LONG_HOLIDAY.startWeek*7+LONG_HOLIDAY.startDay;
+  const e=LONG_HOLIDAY.endWeek*7+LONG_HOLIDAY.endDay;
+  return totalCur>=s && totalCur<=e;
 }
 
-/* ═══ 第4周周四晚课取消（所有班级，10/1 国庆） ═══ */
+/* ═══ 道桥班第4周周四晚课：延后 + 享受假期 ═══ */
+const DQ_POSTPONE={week:4,day:4,sections:[[9,10]]};
+function isDqPostpone(key,week,day,s1,s2){
+  if(key!=='dq')return false;
+  return week===DQ_POSTPONE.week && day===DQ_POSTPONE.day
+    && DQ_POSTPONE.sections.some(sec=>sec[0]===s1 && sec[1]===s2);
+}
+
+/* ═══ 其他班第5周周四晚课取消（10/1 国庆） ═══ */
 const CANCEL={week:5,day:4,sections:[[9,10]]};
-function isCancel(week,day,s1,s2){
+function isCancel(key,week,day,s1,s2){
+  if(key==='dq')return false;
   return week===CANCEL.week && day===CANCEL.day
     && CANCEL.sections.some(sec=>sec[0]===s1 && sec[1]===s2);
 }
@@ -1003,7 +1015,7 @@ function render(){
   const hb=document.getElementById('holidayBanner');
   if(currentWeek===4||currentWeek===5||currentWeek===6){
     hb.style.display='block';
-    hb.innerHTML='<span>🎑</span> 中秋国庆双节同庆！9/25 ～ 9/27 中秋，10/1 ～ 10/7 国庆，假期格子已标记 🎉';
+    hb.innerHTML='<span>🎑</span> 中秋国庆连休！9/25 ～ 10/7 共 13 天，中间无课，好好享受假期！🎉';
   }else{hb.style.display='none';}
 
   const pb=document.getElementById('pracBanner');
@@ -1034,14 +1046,13 @@ function render(){
         makeup.forEach(c=>{origHits.push({...c,_makeup:true,note:BUKE_NOTE});});
       }
 
-      /* ★ 中秋国庆假期格（所有班级） */
-      const hol=getHoliday(currentWeek,d);
-      if(hol){
+      /* ★ 假期格：所有班级 9/25 ～ 10/7 连休 */
+      if(isHoliday(currentWeek,d)){
         const div=document.createElement('div');
         div.className='course holiday';
         div.style.background='linear-gradient(135deg,#fff0f0 0%,#ffe4e4 100%)';
         div.style.borderLeftColor='#c0392b';
-        div.innerHTML='<div class="c-name">🎉 '+esc(hol.label)+'</div><div class="c-info">'+esc(hol.range)+'</div><div class="c-weeks">法定假日</div><div class="c-note">🥮 节日快乐！</div>';
+        div.innerHTML='<div class="c-name">🎉 '+esc(LONG_HOLIDAY.label)+'</div><div class="c-info">'+esc(LONG_HOLIDAY.range)+'</div><div class="c-weeks">法定假日</div><div class="c-note">🥮 节日快乐！</div>';
         if(origHits.length){
           const under=document.createElement('div');
           under.className='orig-under';
@@ -1054,8 +1065,25 @@ function render(){
         return;
       }
 
-      /* ★ 第5周周四晚课取消（10/1 国庆，所有班级） */
-      if(isCancel(currentWeek,d,sec.start,sec.end)){
+      /* ★ 道桥班第4周周四晚课：延后 + 享受假期 */
+      if(isDqPostpone(currentClassKey,currentWeek,d,sec.start,sec.end)){
+        const div=document.createElement('div');
+        div.className='course postponed';
+        div.innerHTML='<div class="c-name">🎊 晚课延后 + 享受假期</div><div class="c-info">国庆调课</div><div class="c-weeks">第4周周四（9/24 晚）</div><div class="c-note">📅 延后补上，先过双节！</div>';
+        if(origHits.length){
+          const under=document.createElement('div');
+          under.className='orig-under';
+          under.innerHTML='<b>原课：</b>'+origHits.map(c=>esc(c.n)+(c.p?'（'+esc(c.p)+'）':'')).join('；');
+          div.appendChild(under);
+        }
+        bindCell(div,currentClassKey,d,sec.start,sec.end);
+        td.appendChild(div);
+        tr.appendChild(td);
+        return;
+      }
+
+      /* ★ 其他班第5周周四晚课取消（10/1 国庆） */
+      if(isCancel(currentClassKey,currentWeek,d,sec.start,sec.end)){
         const div=document.createElement('div');
         div.className='course cancelled';
         div.innerHTML='<div class="c-name">国庆假期调课</div><div class="c-info">晚课取消</div><div class="c-weeks">第5周周四（10/1）</div><div class="c-note">📅 调至以后补上</div>';
@@ -1187,13 +1215,26 @@ function init(){
     opt.textContent=CLASS_DATA[k].name+'（'+CLASS_DATA[k].major+'）';
     cs.appendChild(opt);
   });
-  cs.value='dq';
-  cs.addEventListener('change',e=>{currentClassKey=e.target.value;render();});
+  cs.value=(currentClassKey && CLASS_DATA[currentClassKey]) ? currentClassKey : 'dq';
+  currentClassKey=cs.value;
+  cs.addEventListener('change',e=>{
+    currentClassKey=e.target.value;
+    try{localStorage.setItem(CLASS_KEY,currentClassKey);}catch(err){}
+    render();
+  });
   const ws=document.getElementById('weekSelect');
   for(let i=1;i<=TOTAL_WEEKS;i++){const opt=document.createElement('option');opt.value=i;opt.textContent='第 '+i+' 周';ws.appendChild(opt);}
-  document.getElementById('prevBtn').addEventListener('click',()=>{if(currentWeek>1){currentWeek--;render();}});
-  document.getElementById('nextBtn').addEventListener('click',()=>{if(currentWeek<TOTAL_WEEKS){currentWeek++;render();}});
-  ws.addEventListener('change',e=>{currentWeek=Number(e.target.value);render();});
+  document.getElementById('prevBtn').addEventListener('click',()=>{
+    if(currentWeek>1){currentWeek--;try{localStorage.setItem(WEEK_KEY,currentWeek);}catch(e){}render();}
+  });
+  document.getElementById('nextBtn').addEventListener('click',()=>{
+    if(currentWeek<TOTAL_WEEKS){currentWeek++;try{localStorage.setItem(WEEK_KEY,currentWeek);}catch(e){}render();}
+  });
+  ws.addEventListener('change',e=>{
+    currentWeek=Number(e.target.value);
+    try{localStorage.setItem(WEEK_KEY,currentWeek);}catch(err){}
+    render();
+  });
 
   document.getElementById('adminLink').addEventListener('click',()=>openAdmin());
   document.getElementById('adminClose').addEventListener('click',closeAdmin);
