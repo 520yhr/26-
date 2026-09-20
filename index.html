@@ -37,6 +37,80 @@ thead th.wknd{background:#fbf3e6;color:#9a6a00;}
 .course.old{opacity:.55;filter:grayscale(.25);}
 .course.old .c-name{text-decoration:line-through;text-decoration-color:#c0392b;}
 .course.old::after{content:'原课';position:absolute;top:2px;right:4px;font-size:10px;color:#889;background:#eef1f5;border-radius:3px;padding:1px 4px;}
+
+/* ═══ 喜庆假期样式 ═══ */
+.course.holiday{
+  background:linear-gradient(135deg,#fff0f0 0%,#ffe4e4 100%)!important;
+  border-left-color:#c0392b!important;
+  border-left-style:solid!important;
+  border-left-width:5px!important;
+  box-shadow:0 0 0 2px rgba(192,57,43,.15),0 1px 4px rgba(192,57,43,.1)!important;
+}
+.course.holiday .c-name{color:#a93226!important;}
+.course.holiday::after{
+  content:'🎉 假期';
+  position:absolute;top:2px;right:4px;font-size:10px;color:#fff;
+  background:linear-gradient(135deg,#e74c3c,#c0392b);
+  border-radius:3px;padding:1px 5px;font-weight:700;
+  box-shadow:0 1px 2px rgba(192,57,43,.3);
+}
+.course.holiday .c-note{color:#c0392b!important;font-weight:700!important;}
+
+.course.cancelled{
+  background:linear-gradient(135deg,#fff8f0 0%,#ffeedd 100%)!important;
+  border-left-color:#e67e22!important;
+  border-left-style:solid!important;
+  border-left-width:5px!important;
+  box-shadow:0 0 0 2px rgba(230,126,34,.15),0 1px 4px rgba(230,126,34,.1)!important;
+}
+.course.cancelled .c-name{color:#b35900!important;text-decoration:line-through;text-decoration-color:#e67e22;}
+.course.cancelled::after{
+  content:'📅 调课';
+  position:absolute;top:2px;right:4px;font-size:10px;color:#fff;
+  background:linear-gradient(135deg,#f39c12,#e67e22);
+  border-radius:3px;padding:1px 5px;font-weight:700;
+  box-shadow:0 1px 2px rgba(230,126,34,.3);
+}
+.course.cancelled .c-note{color:#b35900!important;font-weight:700!important;}
+
+.orig-under{font-size:10px;color:#aab;margin-top:4px;padding-top:3px;border-top:1px dashed #e0d0d0;line-height:1.4;}
+.orig-under b{color:#99a;font-weight:600;}
+
+.holiday-banner{
+  display:none;background:linear-gradient(135deg,#fff5f5 0%,#ffe8e8 100%);
+  border:2px solid #e74c3c;border-radius:12px;padding:12px 18px;margin:10px 0;
+  font-size:14px;text-align:center;color:#a93226;font-weight:700;
+  box-shadow:0 2px 8px rgba(231,76,60,.12);
+}
+.holiday-banner span{font-size:18px;margin-right:6px;}
+
+/* ═══ 绝地潜兵2 彩蛋按钮（黑金配色，接近游戏 logo） ═══ */
+.hd2-btn{
+  display:inline-flex;align-items:center;gap:6px;
+  background:#0d0d0d;
+  color:#f5c518;font-weight:900;font-size:11px;
+  border:2px solid #f5c518;border-radius:4px;
+  padding:4px 10px;text-decoration:none;cursor:pointer;
+  text-shadow:0 0 4px rgba(245,197,24,.5);
+  box-shadow:0 0 6px rgba(245,197,24,.35);
+  transition:all .2s;letter-spacing:1px;
+  font-family:"Arial Black","PingFang SC",sans-serif;
+}
+.hd2-btn:hover{
+  background:#f5c518;
+  color:#0d0d0d;text-shadow:none;
+  box-shadow:0 0 12px rgba(245,197,24,.8),0 0 20px rgba(245,197,24,.4);
+  transform:translateY(-1px);
+}
+.hd2-btn .hd2-icon{
+  font-size:13px;line-height:1;
+  filter:drop-shadow(0 0 3px rgba(245,197,24,.6));
+}
+.hd2-btn:hover .hd2-icon{filter:none;}
+.hd2-btn .hd2-text{font-size:10px;}
+
+/* ═══ 样式结束 ═══ */
+
 .c-name{font-weight:700;font-size:12.5px;line-height:1.35;padding-right:58px;}
 .c-info{font-size:11.5px;color:#455;margin-top:3px;}
 .c-weeks{font-size:11px;color:#8a94a6;margin-top:3px;}
@@ -90,6 +164,7 @@ footer a{color:#4a78c2;text-decoration:none;font-weight:700;}
   </div>
   <div class="range" id="weekRange"></div>
   <div class="notice" id="noticeArea"></div>
+  <div class="holiday-banner" id="holidayBanner"></div>
   <div class="prac-banner" id="pracBanner"></div>
   <div class="table-wrap">
     <table>
@@ -109,6 +184,10 @@ footer a{color:#4a78c2;text-decoration:none;font-weight:700;}
     数据来源：各班课表 ·
     <a href="javascript:void(0)" id="adminLink">管理</a> ·
     <a href="javascript:void(0)" id="disclaimerLink" style="color:#7a5200;background:#ffe9a8;border:1px solid #f0c33c;border-radius:6px;padding:2px 8px;font-weight:700;">⚠ 免责声明</a>
+    <a href="https://www.bilibili.com/video/BV1Wf421z78K/?spm_id_from=333.337.search-card.all.click&vd_source=804f2408122f607e910ad227ee3918a9" target="_blank" class="hd2-btn" title="绝地潜兵2 · 为超级地球而战！">
+      <span class="hd2-icon">☠</span>
+      <span class="hd2-text">HELLDIVERS 2</span>
+    </a>
   </footer>
 </div>
 
@@ -173,7 +252,7 @@ footer a{color:#4a78c2;text-decoration:none;font-weight:700;}
 </div>
 
 <script>
-/* ═══ 数据层：将来接服务器只需改 loadData/saveData ═══ */
+/* ═══ 数据层 ═══ */
 const STORE_KEY='kb_data_v2';
 function loadData(){try{return JSON.parse(localStorage.getItem(STORE_KEY))||{};}catch(e){return {};}}
 function saveData(all){localStorage.setItem(STORE_KEY,JSON.stringify(all));}
@@ -181,29 +260,21 @@ function saveData(all){localStorage.setItem(STORE_KEY,JSON.stringify(all));}
 const START_DATE=new Date(2026,7,31);
 const TOTAL_WEEKS=20;
 const DAYS=[1,2,3,4,5,6,7];
-const ADMIN_PASSWORD='******'; // ★超级：调课+统计
-const LOCAL_PASSWORD='1234';   // ★本地：只调课
+const ADMIN_PASSWORD='******';
+const LOCAL_PASSWORD='1234';
 let loginRole='';
 let currentWeek=getTodayWeek(),currentClassKey='dq',todayWeek=getTodayWeek(),todayDay=getTodayDay();
 
-/* ★全局公告：改这一处，所有班生效 */
 const BUKE_NOTE='补10月6日（第6周周二）';
 const BUKE_NOTICE='调课：9月20日（第3周周日）补上 10月6日（第6周周二）的课程。';
 const GLOBAL_NOTICE='📌 '+BUKE_NOTICE;
 
-/* ═══ 补课映射：第3周周日 → 第6周周二 ═══
-   规则：只在“第3周 星期日”这一列，把“第6周 星期二”的课程显示出来。
-   原有班级数据不动，仅渲染时做映射。 */
 const MAKEUP_FROM_WEEK=6;
-const MAKEUP_FROM_DAY=2;      // 周二
+const MAKEUP_FROM_DAY=2;
 const MAKEUP_TO_WEEK=3;
-const MAKEUP_TO_DAY=7;       // 周日
+const MAKEUP_TO_DAY=7;
 
-/* ═══ 第4周周一「新版覆盖」：优先展示新版，原课保留并标灰 ═══
-   只影响第4周星期一。键为班级 key，值为该班第4周周一的新版课程。
-   格式：{d:星期, s:[起,止], n:课名, p:地点, t:教师}
-   ★ 渲染规则：若某格新版与原有课程“完全相同”，则只按原样显示，不加调整提示；
-     只有存在差异的格子，才新版优先 + 原课标灰。 */
+/* ═══ 第4周周一「新版覆盖」 ═══ */
 const WEEK4_MON_NEW={
   dq:[
     {d:1,s:[1,2],n:'高职英语Ⅰ',p:'新C409',t:'田小霞'},
@@ -239,10 +310,39 @@ const WEEK4_MON_NEW={
   ]
 };
 
-/* ═══ 班级数据：格式 课名|星期|节|周次|地点|教师（末尾|#=补课标记）═══
-   以后加班级：把课表发我，我按此格式给你"一个班块"粘进 RAW。*/
+/* ═══ 中秋国庆假期（所有班级） ═══
+   2026 中秋：9/25（周五）～ 9/27（周日）
+   2026 国庆：10/1（周四）～ 10/7（周三）
+   中间 9/28～9/30 正常上课。
+   规则：假期当天所有格子显示假期喜庆条 + 下方保留原课。 */
+const HOLIDAY_RANGES=[
+  {startWeek:4,startDay:5,endWeek:4,endDay:7,label:'中秋假期',range:'9/25 ～ 9/27'},
+  {startWeek:5,startDay:4,endWeek:6,endDay:3,label:'国庆假期',range:'10/1 ～ 10/7'}
+];
+function isHoliday(week,day){
+  const totalCur=week*7+day;
+  return HOLIDAY_RANGES.some(h=>{
+    const s=h.startWeek*7+h.startDay, e=h.endWeek*7+h.endDay;
+    return totalCur>=s && totalCur<=e;
+  });
+}
+function getHoliday(week,day){
+  const totalCur=week*7+day;
+  for(const h of HOLIDAY_RANGES){
+    const s=h.startWeek*7+h.startDay, e=h.endWeek*7+h.endDay;
+    if(totalCur>=s && totalCur<=e) return h;
+  }
+  return null;
+}
+
+/* ═══ 第4周周四晚课取消（所有班级，10/1 国庆） ═══ */
+const CANCEL={week:5,day:4,sections:[[9,10]]};
+function isCancel(week,day,s1,s2){
+  return week===CANCEL.week && day===CANCEL.day
+    && CANCEL.sections.some(sec=>sec[0]===s1 && sec[1]===s2);
+}
+
 const RAW={
-/* ───────── 原有班级（未改动） ───────── */
 dq:{n:'道路桥梁2601',m:'道路与桥梁工程技术',pr:'认识实习@杨义辉@9;工程测量实训@冉凌@16',c:`
 高职英语Ⅰ|1|1-2|3-7周,10-11周,13-15周,17-18周|新D304|田小霞
 工程制图|1|3-4|3-11周,13-15周,17周|新D309|陈莉
@@ -462,7 +562,6 @@ xh2604:{n:'铁道信号2604',m:'铁道信号自动控制',pr:'电工技能实训
 电工技术|7|5-6|3周|新D308|董家兴|#
 职业发展与就业指导(含专业认知）（上）|7|7-8|3周|新B205-2|曾科|#`},
 
-/* ───────── 新增班级（来自 26级班级课表 9.13） ───────── */
 dkfq:{n:'低空飞行器2601',m:'低空飞行器装备技术',pr:'',c:`
 职业发展与就业指导(含专业认知)（上）|1|1-2|6-9周|新D305|江校荣
 思想道德与法治|1|1-2|3-11周,18周|新D102|周杨
@@ -797,7 +896,6 @@ znqc:{n:'智能汽车2601',m:'智能网联汽车技术',pr:'钳工技能实训@�
 `}
 };
 
-/* 解析 RAW → CLASS_DATA */
 const CLASS_DATA={};
 Object.keys(RAW).forEach(k=>{
   const r=RAW[k];
@@ -833,7 +931,6 @@ const colorDefs=[
 ['机械制图（含CAD）','#F3E5F5','#7B1FA2']
 ];
 
-/* ★上下课时间（周五下午一点半上课） */
 const sections=[
 {label:'第1-2节',time:'8:40～10:10',period:'上午',start:1,end:2},
 {label:'第3-4节',time:'10:30～12:00',period:'上午',start:3,end:4},
@@ -842,7 +939,6 @@ const sections=[
 {label:'第9-10节',time:'19:00～20:30',period:'晚课',start:9,end:10}
 ];
 
-/* 工具 */
 function parseWeeks(str){const res=new Set();String(str||'').replace(/\s+/g,'').split(',').forEach(part=>{
   if(!part)return;let p=part;const odd=p.includes('单'),even=p.includes('双');
   p=p.replace('(单)','').replace('（单）','').replace('(双)','').replace('（双）','').replace('周','');
@@ -857,7 +953,6 @@ function getTodayDay(){const d=new Date().getDay();return d===0?7:d;}
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
 function ck(key,d,s1){return key+'|'+d+'|'+s1;}
 
-/* 本地覆盖：没动过的格子读官方，动过的保留本地 */
 function getClassData(key){
   const def=CLASS_DATA[key];
   const base={courses:def.courses.map(c=>({...c})),practice:def.practice.map(p=>({...p})),notices:def.notices.slice()};
@@ -874,13 +969,27 @@ function setCell(key,d,s1,val){const all=loadData();if(!all.__o__)all.__o__={};i
 function clearCell(key,d,s1){const all=loadData();if(all.__o__&&all.__o__[key]){delete all.__o__[key][ck(key,d,s1)];saveData(all);}}
 function getCellCourses(key,d,s1){return getClassData(key).courses.filter(c=>c.d===d&&c.s[0]===s1).map(c=>{const o={...c};delete o._local;return o;});}
 
-/* 判断新版与原课是否“完全相同” */
 function sameCourse(a,b){
   if(!a||!b)return false;
   return a.n===b.n && (a.p||'')===(b.p||'') && (a.t||'')===(b.t||'');
 }
 
-/* 渲染 */
+function makeCourseEl(c,opts){
+  opts=opts||{};
+  const col=colorOf(c.n);
+  const div=document.createElement('div');
+  div.className='course'+(c._local?' local':'')+(opts.extraClass||'');
+  div.style.background=col[0];div.style.borderLeftColor=col[1];
+  div.innerHTML='<div class="c-name"></div><div class="c-info"></div><div class="c-weeks"></div><div class="c-note"></div>';
+  div.querySelector('.c-name').textContent=c.n;
+  div.querySelector('.c-info').textContent=(c.p||'')+' · '+(c.t||'');
+  div.querySelector('.c-weeks').textContent=c.w?simplifyWeeks(c.w):'';
+  const no=div.querySelector('.c-note');
+  if(c.note)no.textContent='📌 '+c.note;else no.remove();
+  if(c._makeup){div.style.borderLeftStyle='dashed';div.style.borderLeftWidth='4px';}
+  return div;
+}
+
 function render(){
   const data=getClassData(currentClassKey);
   document.getElementById('weekLabel').textContent='第 '+currentWeek+' 周';
@@ -890,6 +999,13 @@ function render(){
   document.getElementById('nextBtn').disabled=(currentWeek>=TOTAL_WEEKS);
   const ne=document.getElementById('noticeArea');
   if(GLOBAL_NOTICE){ne.style.display='block';ne.innerHTML=GLOBAL_NOTICE.split('\n').map(t=>'<div>'+esc(t)+'</div>').join('');}else{ne.style.display='none';}
+
+  const hb=document.getElementById('holidayBanner');
+  if(currentWeek===4||currentWeek===5||currentWeek===6){
+    hb.style.display='block';
+    hb.innerHTML='<span>🎑</span> 中秋国庆双节同庆！9/25 ～ 9/27 中秋，10/1 ～ 10/7 国庆，假期格子已标记 🎉';
+  }else{hb.style.display='none';}
+
   const pb=document.getElementById('pracBanner');
   const prac=(data.practice||[]).filter(p=>p.week===currentWeek);
   if(prac.length){pb.style.display='block';pb.innerHTML=prac.map(p=>'<div>🔧 本周实践：<b>'+esc(p.name)+'</b>（指导教师：'+esc(p.teacher)+'）</div>').join('');}else{pb.style.display='none';}
@@ -911,48 +1027,67 @@ function render(){
       const td=document.createElement('td');
       if(d>=6)td.style.background='#fffcf6';
       if(currentWeek===todayWeek&&d===todayDay)td.style.background='#fff9c4';
-      let hits=courses.filter(c=>c.d===d&&c.s[0]===sec.start&&c.s[1]===sec.end&&c.weeksSet.has(currentWeek));
-      /* ★ 补课映射：第3周周日 → 第6周周二 */
+
+      let origHits=courses.filter(c=>c.d===d&&c.s[0]===sec.start&&c.s[1]===sec.end&&c.weeksSet.has(currentWeek));
       if(currentWeek===MAKEUP_TO_WEEK&&d===MAKEUP_TO_DAY){
         const makeup=courses.filter(c=>c.d===MAKEUP_FROM_DAY&&c.s[0]===sec.start&&c.s[1]===sec.end&&c.weeksSet.has(MAKEUP_FROM_WEEK));
-        makeup.forEach(c=>{
-          hits.push({...c,_makeup:true,note:BUKE_NOTE});
-        });
+        makeup.forEach(c=>{origHits.push({...c,_makeup:true,note:BUKE_NOTE});});
       }
-      /* ★ 第4周周一：新版优先展示，原课保留并标灰（仅差异格） */
+
+      /* ★ 中秋国庆假期格（所有班级） */
+      const hol=getHoliday(currentWeek,d);
+      if(hol){
+        const div=document.createElement('div');
+        div.className='course holiday';
+        div.style.background='linear-gradient(135deg,#fff0f0 0%,#ffe4e4 100%)';
+        div.style.borderLeftColor='#c0392b';
+        div.innerHTML='<div class="c-name">🎉 '+esc(hol.label)+'</div><div class="c-info">'+esc(hol.range)+'</div><div class="c-weeks">法定假日</div><div class="c-note">🥮 节日快乐！</div>';
+        if(origHits.length){
+          const under=document.createElement('div');
+          under.className='orig-under';
+          under.innerHTML='<b>原课：</b>'+origHits.map(c=>esc(c.n)+(c.p?'（'+esc(c.p)+'）':'')).join('；');
+          div.appendChild(under);
+        }
+        bindCell(div,currentClassKey,d,sec.start,sec.end);
+        td.appendChild(div);
+        tr.appendChild(td);
+        return;
+      }
+
+      /* ★ 第5周周四晚课取消（10/1 国庆，所有班级） */
+      if(isCancel(currentWeek,d,sec.start,sec.end)){
+        const div=document.createElement('div');
+        div.className='course cancelled';
+        div.innerHTML='<div class="c-name">国庆假期调课</div><div class="c-info">晚课取消</div><div class="c-weeks">第5周周四（10/1）</div><div class="c-note">📅 调至以后补上</div>';
+        if(origHits.length){
+          const under=document.createElement('div');
+          under.className='orig-under';
+          under.innerHTML='<b>原课：</b>'+origHits.map(c=>esc(c.n)+(c.p?'（'+esc(c.p)+'）':'')).join('；');
+          div.appendChild(under);
+        }
+        bindCell(div,currentClassKey,d,sec.start,sec.end);
+        td.appendChild(div);
+        tr.appendChild(td);
+        return;
+      }
+
       let newHits=[];
       if(currentWeek===4&&d===1&&WEEK4_MON_NEW[currentClassKey]){
         WEEK4_MON_NEW[currentClassKey].forEach(nc=>{
           if(nc.s[0]===sec.start&&nc.s[1]===sec.end){
-            const oldSame=hits.find(h=>sameCourse(h,nc));
-            if(oldSame){
-              /* 完全相同：只按原样显示，不加调整提示 */
-              return;
-            }
+            const oldSame=origHits.find(h=>sameCourse(h,nc));
+            if(oldSame)return;
             newHits.push({...nc,_updated:true,w:'4周'});
           }
         });
       }
-      /* 先渲染原课（若该格有差异新版，则原课标灰） */
-      if(hits.length){
-        hits.forEach(c=>{
-          const col=colorOf(c.n);
-          const div=document.createElement('div');
-          div.className='course'+(c._local?' local':'');
-          if(newHits.length) div.className+=' old';
-          div.style.background=col[0];div.style.borderLeftColor=col[1];
-          div.innerHTML='<div class="c-name"></div><div class="c-info"></div><div class="c-weeks"></div><div class="c-note"></div>';
-          div.querySelector('.c-name').textContent=c.n;
-          div.querySelector('.c-info').textContent=c.p+' · '+c.t;
-          div.querySelector('.c-weeks').textContent=simplifyWeeks(c.w);
-          const no=div.querySelector('.c-note');
-          if(c.note)no.textContent='📌 '+c.note;else no.remove();
-          if(c._makeup){div.style.borderLeftStyle='dashed';div.style.borderLeftWidth='4px';}
+      if(origHits.length){
+        origHits.forEach(c=>{
+          const div=makeCourseEl(c,{extraClass:newHits.length?' old':''});
           bindCell(div,currentClassKey,d,sec.start,sec.end);
           td.appendChild(div);
         });
       }
-      /* 再渲染差异新版（第4周周一） */
       if(newHits.length){
         newHits.forEach(c=>{
           const col=colorOf(c.n);
@@ -968,7 +1103,7 @@ function render(){
           td.appendChild(div);
         });
       }
-      if(!hits.length&&!newHits.length){
+      if(!origHits.length&&!newHits.length){
         const e=document.createElement('div');e.className='empty';e.textContent='—';
         bindCell(e,currentClassKey,d,sec.start,sec.end);
         td.appendChild(e);
@@ -981,14 +1116,12 @@ function render(){
   document.getElementById('legendItems').innerHTML=names.map(n=>{const col=colorOf(n);return '<span class="legend-item"><span class="dot" style="background:'+col[1]+'"></span>'+esc(n)+'</span>';}).join('');
 }
 
-/* 格子点击：只有登录后才能编辑 */
 function bindCell(el,key,d,s1,s2){
   el.addEventListener('click',()=>{
     if(loginRole){ openCellEditor(key,d,s1,s2); }
   });
 }
 
-/* 格子编辑 */
 let cellCtx=null;
 function openCellEditor(key,d,s1,s2){
   cellCtx={key,d,s1,s2};
@@ -1011,7 +1144,6 @@ function doCellSave(){
 function doCellClear(){if(!cellCtx)return;setCell(cellCtx.key,cellCtx.d,cellCtx.s1,false);closeCellEditor();render();}
 function doCellClearLocal(){if(!cellCtx)return;clearCell(cellCtx.key,cellCtx.d,cellCtx.s1);closeCellEditor();render();}
 
-/* 水印 */
 function renderWatermark(){
   const wm=document.getElementById('watermark');wm.innerHTML='';
   const cols=Math.ceil(window.innerWidth/90)+1, rows=Math.ceil(window.innerHeight/70)+1;
@@ -1022,7 +1154,6 @@ function renderWatermark(){
 }
 window.addEventListener('resize',renderWatermark);
 
-/* 管理登录 */
 function openAdmin(hint){
   document.getElementById('adminModal').style.display='block';
   const lh=document.getElementById('loginHint');
@@ -1038,7 +1169,17 @@ function openAdmin(hint){
 }
 function closeAdmin(){document.getElementById('adminModal').style.display='none';}
 
-/* 初始化 */
+const DISCLAIMER_SHOWN_KEY='kb_disclaimer_shown_v1';
+function showDisclaimerOnce(){
+  try{
+    if(localStorage.getItem(DISCLAIMER_SHOWN_KEY)==='1')return;
+    localStorage.setItem(DISCLAIMER_SHOWN_KEY,'1');
+  }catch(e){}
+  const dm=document.getElementById('disclaimerModal');
+  dm.style.display='block';
+  setTimeout(()=>{dm.style.display='none';},2000);
+}
+
 function init(){
   const cs=document.getElementById('classSelect');
   Object.keys(CLASS_DATA).forEach(k=>{
@@ -1094,6 +1235,7 @@ function init(){
 
   renderWatermark();
   render();
+  showDisclaimerOnce();
 }
 init();
 </script>
