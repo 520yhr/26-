@@ -32,6 +32,11 @@ thead th.wknd{background:#fbf3e6;color:#9a6a00;}
 .course:last-child{margin-bottom:0;}
 .course.local{border-left-style:dashed;}
 .course.local::after{content:'✎本地修改';position:absolute;top:2px;right:4px;font-size:10px;color:#fff;background:#e67e22;border-radius:3px;padding:1px 4px;font-weight:700;}
+.course.updated{border-left-style:dashed;border-left-width:4px;box-shadow:0 0 0 2px #f0c33c inset;}
+.course.updated::after{content:'📌 本周调整';position:absolute;top:2px;right:4px;font-size:10px;color:#7a5200;background:#ffe9a8;border:1px solid #f0c33c;border-radius:3px;padding:1px 4px;font-weight:700;}
+.course.old{opacity:.55;filter:grayscale(.25);}
+.course.old .c-name{text-decoration:line-through;text-decoration-color:#c0392b;}
+.course.old::after{content:'原课';position:absolute;top:2px;right:4px;font-size:10px;color:#889;background:#eef1f5;border-radius:3px;padding:1px 4px;}
 .c-name{font-weight:700;font-size:12.5px;line-height:1.35;padding-right:58px;}
 .c-info{font-size:11.5px;color:#455;margin-top:3px;}
 .c-weeks{font-size:11px;color:#8a94a6;margin-top:3px;}
@@ -193,6 +198,46 @@ const MAKEUP_FROM_WEEK=6;
 const MAKEUP_FROM_DAY=2;      // 周二
 const MAKEUP_TO_WEEK=3;
 const MAKEUP_TO_DAY=7;       // 周日
+
+/* ═══ 第4周周一「新版覆盖」：优先展示新版，原课保留并标灰 ═══
+   只影响第4周星期一。键为班级 key，值为该班第4周周一的新版课程。
+   格式：{d:星期, s:[起,止], n:课名, p:地点, t:教师}
+   ★ 渲染规则：若某格新版与原有课程“完全相同”，则只按原样显示，不加调整提示；
+     只有存在差异的格子，才新版优先 + 原课标灰。 */
+const WEEK4_MON_NEW={
+  dq:[
+    {d:1,s:[1,2],n:'高职英语Ⅰ',p:'新C409',t:'田小霞'},
+    {d:1,s:[3,4],n:'工程制图',p:'新D309',t:'陈莉'},
+    {d:1,s:[5,6],n:'工程制图',p:'新C307',t:'陈莉'},
+    {d:1,s:[9,10],n:'思想道德与法治',p:'新D310',t:'付灿'}
+  ],
+  jg:[
+    {d:1,s:[1,2],n:'高职英语Ⅰ',p:'新C409',t:'田小霞'},
+    {d:1,s:[3,4],n:'工程制图',p:'新D309',t:'陈莉'},
+    {d:1,s:[5,6],n:'工程制图',p:'新C307',t:'陈莉'},
+    {d:1,s:[9,10],n:'思想道德与法治',p:'新D310',t:'付灿'}
+  ],
+  td:[
+    {d:1,s:[1,2],n:'思想道德与法治',p:'新D301',t:'赵广茹'},
+    {d:1,s:[3,4],n:'思想道德与法治',p:'新C307',t:'赵广茹'},
+    {d:1,s:[5,6],n:'思想道德与法治',p:'新D308',t:'赵广茹'},
+    {d:1,s:[7,8],n:'工程制图',p:'新C403',t:'陈莉'}
+  ],
+  wrj:[
+    {d:1,s:[1,2],n:'思想道德与法治',p:'新D301',t:'赵广茹'},
+    {d:1,s:[3,4],n:'思想道德与法治',p:'新C307',t:'赵广茹'},
+    {d:1,s:[5,6],n:'思想道德与法治',p:'新D308',t:'赵广茹'}
+  ],
+  jy1:[
+    {d:1,s:[7,8],n:'高职英语Ⅰ',p:'新C310',t:'柯萍'},
+    {d:1,s:[9,10],n:'数字技术应用基础',p:'新C308',t:'黄安琪'}
+  ],
+  jy2:[
+    {d:1,s:[3,4],n:'工程测量',p:'新B203-1',t:'钟玉洁'},
+    {d:1,s:[5,6],n:'工程测量',p:'新D309',t:'钟玉洁'},
+    {d:1,s:[7,8],n:'高职英语Ⅰ',p:'新C310',t:'柯萍'}
+  ]
+};
 
 /* ═══ 班级数据：格式 课名|星期|节|周次|地点|教师（末尾|#=补课标记）═══
    以后加班级：把课表发我，我按此格式给你"一个班块"粘进 RAW。*/
@@ -829,6 +874,12 @@ function setCell(key,d,s1,val){const all=loadData();if(!all.__o__)all.__o__={};i
 function clearCell(key,d,s1){const all=loadData();if(all.__o__&&all.__o__[key]){delete all.__o__[key][ck(key,d,s1)];saveData(all);}}
 function getCellCourses(key,d,s1){return getClassData(key).courses.filter(c=>c.d===d&&c.s[0]===s1).map(c=>{const o={...c};delete o._local;return o;});}
 
+/* 判断新版与原课是否“完全相同” */
+function sameCourse(a,b){
+  if(!a||!b)return false;
+  return a.n===b.n && (a.p||'')===(b.p||'') && (a.t||'')===(b.t||'');
+}
+
 /* 渲染 */
 function render(){
   const data=getClassData(currentClassKey);
@@ -868,11 +919,27 @@ function render(){
           hits.push({...c,_makeup:true,note:BUKE_NOTE});
         });
       }
+      /* ★ 第4周周一：新版优先展示，原课保留并标灰（仅差异格） */
+      let newHits=[];
+      if(currentWeek===4&&d===1&&WEEK4_MON_NEW[currentClassKey]){
+        WEEK4_MON_NEW[currentClassKey].forEach(nc=>{
+          if(nc.s[0]===sec.start&&nc.s[1]===sec.end){
+            const oldSame=hits.find(h=>sameCourse(h,nc));
+            if(oldSame){
+              /* 完全相同：只按原样显示，不加调整提示 */
+              return;
+            }
+            newHits.push({...nc,_updated:true,w:'4周'});
+          }
+        });
+      }
+      /* 先渲染原课（若该格有差异新版，则原课标灰） */
       if(hits.length){
         hits.forEach(c=>{
           const col=colorOf(c.n);
           const div=document.createElement('div');
           div.className='course'+(c._local?' local':'');
+          if(newHits.length) div.className+=' old';
           div.style.background=col[0];div.style.borderLeftColor=col[1];
           div.innerHTML='<div class="c-name"></div><div class="c-info"></div><div class="c-weeks"></div><div class="c-note"></div>';
           div.querySelector('.c-name').textContent=c.n;
@@ -884,7 +951,24 @@ function render(){
           bindCell(div,currentClassKey,d,sec.start,sec.end);
           td.appendChild(div);
         });
-      }else{
+      }
+      /* 再渲染差异新版（第4周周一） */
+      if(newHits.length){
+        newHits.forEach(c=>{
+          const col=colorOf(c.n);
+          const div=document.createElement('div');
+          div.className='course updated';
+          div.style.background=col[0];div.style.borderLeftColor=col[1];
+          div.innerHTML='<div class="c-name"></div><div class="c-info"></div><div class="c-weeks"></div><div class="c-note"></div>';
+          div.querySelector('.c-name').textContent=c.n;
+          div.querySelector('.c-info').textContent=c.p+' · '+c.t;
+          div.querySelector('.c-weeks').textContent='第4周周一（新版）';
+          div.querySelector('.c-note').textContent='📌 本周调整，以新版为准';
+          bindCell(div,currentClassKey,d,sec.start,sec.end);
+          td.appendChild(div);
+        });
+      }
+      if(!hits.length&&!newHits.length){
         const e=document.createElement('div');e.className='empty';e.textContent='—';
         bindCell(e,currentClassKey,d,sec.start,sec.end);
         td.appendChild(e);
