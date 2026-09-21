@@ -90,6 +90,24 @@ thead th.wknd{background:#fbf3e6;color:#9a6a00;}
 }
 .course.postponed .c-note{color:#8a6d00!important;font-weight:700!important;}
 
+/* ★ 调课到周三 7-8 节的样式 */
+.course.moved-in{
+  background:linear-gradient(135deg,#e8f5e9 0%,#d4edda 100%)!important;
+  border-left-color:#43a047!important;
+  border-left-style:solid!important;
+  border-left-width:5px!important;
+  box-shadow:0 0 0 2px rgba(67,160,71,.2),0 1px 4px rgba(67,160,71,.12)!important;
+}
+.course.moved-in .c-name{color:#2e7d32!important;}
+.course.moved-in::after{
+  content:'📥 调课入';
+  position:absolute;top:2px;right:4px;font-size:10px;color:#fff;
+  background:linear-gradient(135deg,#43a047,#2e7d32);
+  border-radius:3px;padding:1px 5px;font-weight:700;
+  box-shadow:0 1px 2px rgba(67,160,71,.3);
+}
+.course.moved-in .c-note{color:#2e7d32!important;font-weight:700!important;}
+
 .orig-under{font-size:10px;color:#aab;margin-top:4px;padding-top:3px;border-top:1px dashed #e0d0d0;line-height:1.4;}
 .orig-under b{color:#99a;font-weight:600;}
 
@@ -284,9 +302,19 @@ try{
   if(savedWeek && !isNaN(+savedWeek)){const w=+savedWeek; if(w>=1&&w<=TOTAL_WEEKS) currentWeek=w;}
 }catch(e){}
 
+/* ═══ 公告：带时间限制 ═══
+   GLOBAL_NOTICE_END 为公告截止时间，过了这个时间公告自动消失。
+   设为 null 表示永久显示。 */
 const BUKE_NOTE='补10月6日（第6周周二）';
 const BUKE_NOTICE='调课：9月20日（第3周周日）补上 10月6日（第6周周二）的课程。';
+const GLOBAL_NOTICE_END=new Date(2026,8,21,0,0,0); // 2026-09-21 00:00 截止
 const GLOBAL_NOTICE='📌 '+BUKE_NOTICE;
+
+function isNoticeActive(){
+  if(!GLOBAL_NOTICE)return false;
+  if(GLOBAL_NOTICE_END===null)return true;
+  return new Date() < GLOBAL_NOTICE_END;
+}
 
 const MAKEUP_FROM_WEEK=6;
 const MAKEUP_FROM_DAY=2;
@@ -338,18 +366,26 @@ function isHoliday(week,day){
   return totalCur>=s && totalCur<=e;
 }
 
-/* ═══ 道桥班第4周周四晚课：延后 + 享受假期 ═══ */
-const DQ_POSTPONE={week:4,day:4,sections:[[9,10]]};
-function isDqPostpone(key,week,day,s1,s2){
-  if(key!=='dq')return false;
-  return week===DQ_POSTPONE.week && day===DQ_POSTPONE.day
-    && DQ_POSTPONE.sections.some(sec=>sec[0]===s1 && sec[1]===s2);
+/* ═══ 道桥/建工 第4周周四晚课 → 调到第4周周三 7-8 节 ═══ */
+const MOVE_OUT={week:4,day:4,sections:[[9,10]]}; // 原：第4周周四晚课
+const MOVE_IN={week:4,day:3,sections:[[7,8]]};   // 新：第4周周三 7-8 节
+const MOVE_CLASSES=['dq','jg'];
+
+function isMoveOut(key,week,day,s1,s2){
+  if(MOVE_CLASSES.indexOf(key)<0)return false;
+  return week===MOVE_OUT.week && day===MOVE_OUT.day
+    && MOVE_OUT.sections.some(sec=>sec[0]===s1 && sec[1]===s2);
+}
+function isMoveIn(key,week,day,s1,s2){
+  if(MOVE_CLASSES.indexOf(key)<0)return false;
+  return week===MOVE_IN.week && day===MOVE_IN.day
+    && MOVE_IN.sections.some(sec=>sec[0]===s1 && sec[1]===s2);
 }
 
 /* ═══ 其他班第5周周四晚课取消（10/1 国庆） ═══ */
 const CANCEL={week:5,day:4,sections:[[9,10]]};
 function isCancel(key,week,day,s1,s2){
-  if(key==='dq')return false;
+  if(key==='dq'||key==='jg')return false;
   return week===CANCEL.week && day===CANCEL.day
     && CANCEL.sections.some(sec=>sec[0]===s1 && sec[1]===s2);
 }
@@ -1010,7 +1046,12 @@ function render(){
   document.getElementById('prevBtn').disabled=(currentWeek<=1);
   document.getElementById('nextBtn').disabled=(currentWeek>=TOTAL_WEEKS);
   const ne=document.getElementById('noticeArea');
-  if(GLOBAL_NOTICE){ne.style.display='block';ne.innerHTML=GLOBAL_NOTICE.split('\n').map(t=>'<div>'+esc(t)+'</div>').join('');}else{ne.style.display='none';}
+  if(isNoticeActive()){
+    ne.style.display='block';
+    ne.innerHTML=GLOBAL_NOTICE.split('\n').map(t=>'<div>'+esc(t)+'</div>').join('');
+  }else{
+    ne.style.display='none';
+  }
 
   const hb=document.getElementById('holidayBanner');
   if(currentWeek===4||currentWeek===5||currentWeek===6){
@@ -1046,7 +1087,7 @@ function render(){
         makeup.forEach(c=>{origHits.push({...c,_makeup:true,note:BUKE_NOTE});});
       }
 
-      /* ★ 假期格：所有班级 9/25 ～ 10/7 连休 */
+      /* ★ 假期格 */
       if(isHoliday(currentWeek,d)){
         const div=document.createElement('div');
         div.className='course holiday';
@@ -1065,11 +1106,28 @@ function render(){
         return;
       }
 
-      /* ★ 道桥班第4周周四晚课：延后 + 享受假期 */
-      if(isDqPostpone(currentClassKey,currentWeek,d,sec.start,sec.end)){
+      /* ★ 道桥/建工 第4周周四晚课：已调至周三 7-8 节 */
+      if(isMoveOut(currentClassKey,currentWeek,d,sec.start,sec.end)){
         const div=document.createElement('div');
-        div.className='course postponed';
-        div.innerHTML='<div class="c-name">🎊 晚课延后 + 享受假期</div><div class="c-info">国庆调课</div><div class="c-weeks">第4周周四（9/24 晚）</div><div class="c-note">📅 延后补上，先过双节！</div>';
+        div.className='course cancelled';
+        div.innerHTML='<div class="c-name">晚课已调出</div><div class="c-info">调至周三第7-8节</div><div class="c-weeks">第4周周四（9/24 晚）</div><div class="c-note">📅 见周三 7-8 节</div>';
+        if(origHits.length){
+          const under=document.createElement('div');
+          under.className='orig-under';
+          under.innerHTML='<b>原课：</b>'+origHits.map(c=>esc(c.n)+(c.p?'（'+esc(c.p)+'）':'')).join('；');
+          div.appendChild(under);
+        }
+        bindCell(div,currentClassKey,d,sec.start,sec.end);
+        td.appendChild(div);
+        tr.appendChild(td);
+        return;
+      }
+
+      /* ★ 道桥/建工 第4周周三 7-8 节：调入的晚课 */
+      if(isMoveIn(currentClassKey,currentWeek,d,sec.start,sec.end)){
+        const div=document.createElement('div');
+        div.className='course moved-in';
+        div.innerHTML='<div class="c-name">📥 周四晚课调入</div><div class="c-info">原第4周周四第9-10节</div><div class="c-weeks">第4周周三 7-8 节</div><div class="c-note">📅 补课安排</div>';
         if(origHits.length){
           const under=document.createElement('div');
           under.className='orig-under';
