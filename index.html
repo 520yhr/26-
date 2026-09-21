@@ -361,8 +361,9 @@ function isHoliday(week,day){
   return totalCur>=s && totalCur<=e;
 }
 
+/* ★ 道桥/建工 第4周周四晚课 → 调到第4周周三 7-8 节（教室：新B102） */
 const MOVE_OUT={week:4,day:4,sections:[[9,10]]};
-const MOVE_IN={week:4,day:3,sections:[[7,8]]};
+const MOVE_IN={week:4,day:3,sections:[[7,8]],place:'新B102'};
 const MOVE_CLASSES=['dq','jg'];
 
 function isMoveOut(key,week,day,s1,s2){
@@ -1065,7 +1066,6 @@ function render(){
   if(prac.length){pb.style.display='block';pb.innerHTML=prac.map(p=>'<div>🔧 本周实践：<b>'+esc(p.name)+'</b>（指导教师：'+esc(p.teacher)+'）</div>').join('');}else{pb.style.display='none';}
   const courses=data.courses.map(c=>{
     const copy={...c};
-    /* ★ 道桥/建工 每周周一英语课固定在新C409 */
     if(isMonEnglishFix(currentClassKey,copy.d,copy)) copy.p='新C409';
     copy.weeksSet=parseWeeks(copy.w);
     return copy;
@@ -1094,7 +1094,6 @@ function render(){
         makeup.forEach(c=>{origHits.push({...c,_makeup:true,note:BUKE_NOTE});});
       }
 
-      /* ★ 假期格 */
       if(isHoliday(currentWeek,d)){
         const div=document.createElement('div');
         div.className='course holiday';
@@ -1113,11 +1112,10 @@ function render(){
         return;
       }
 
-      /* ★ 道桥/建工 第4周周四晚课：已调至周三 7-8 节 */
       if(isMoveOut(currentClassKey,currentWeek,d,sec.start,sec.end)){
         const div=document.createElement('div');
         div.className='course cancelled';
-        div.innerHTML='<div class="c-name">晚课已调出</div><div class="c-info">调至周三第7-8节</div><div class="c-weeks">第4周周四（9/24 晚）</div><div class="c-note">📅 见周三 7-8 节</div>';
+        div.innerHTML='<div class="c-name">晚课已调出</div><div class="c-info">调至周三第7-8节（新B102）</div><div class="c-weeks">第4周周四（9/24 晚）</div><div class="c-note">📅 见周三 7-8 节</div>';
         if(origHits.length){
           const under=document.createElement('div');
           under.className='orig-under';
@@ -1130,11 +1128,11 @@ function render(){
         return;
       }
 
-      /* ★ 道桥/建工 第4周周三 7-8 节：调入的晚课 */
+      /* ★ 道桥/建工 第4周周三 7-8 节：调入的晚课（教室新B102） */
       if(isMoveIn(currentClassKey,currentWeek,d,sec.start,sec.end)){
         const div=document.createElement('div');
         div.className='course moved-in';
-        div.innerHTML='<div class="c-name">📥 周四晚课调入</div><div class="c-info">原第4周周四第9-10节</div><div class="c-weeks">第4周周三 7-8 节</div><div class="c-note">📅 补课安排</div>';
+        div.innerHTML='<div class="c-name">📥 周四晚课调入</div><div class="c-info">'+esc(MOVE_IN.place)+' · 原第4周周四第9-10节</div><div class="c-weeks">第4周周三 7-8 节</div><div class="c-note">📅 补课安排（新B102）</div>';
         if(origHits.length){
           const under=document.createElement('div');
           under.className='orig-under';
@@ -1147,7 +1145,6 @@ function render(){
         return;
       }
 
-      /* ★ 其他班第5周周四晚课取消（10/1 国庆） */
       if(isCancel(currentClassKey,currentWeek,d,sec.start,sec.end)){
         const div=document.createElement('div');
         div.className='course cancelled';
@@ -1345,6 +1342,6 @@ function init(){
 }
 init();
 </script>
-<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.ni.mini.js"></script>
 </body>
 </html>
