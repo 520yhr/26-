@@ -276,11 +276,12 @@ const LOCAL_PASSWORD='1234';
 let loginRole='';
 let currentWeek=getTodayWeek(),currentClassKey='dq',todayWeek=getTodayWeek(),todayDay=getTodayDay();
 
+/* ★ 班级跟上次，周次跟今日 */
 try{
   const savedClass=localStorage.getItem(CLASS_KEY);
   if(savedClass && savedClass!=='') currentClassKey=savedClass;
-  const savedWeek=localStorage.getItem(WEEK_KEY);
-  if(savedWeek && !isNaN(+savedWeek)){const w=+savedWeek; if(w>=1&&w<=TOTAL_WEEKS) currentWeek=w;}
+  /* 周次不再从 localStorage 读取，直接用今日所在周 */
+  currentWeek=getTodayWeek();
 }catch(e){}
 
 const BUKE_NOTE='补10月6日（第6周周二）';
@@ -420,8 +421,7 @@ jg:{n:'建筑工程2601',m:'建筑工程技术',pr:'认识实习@陈莉@9;工程
 工程材料|2|5-6|9-11周,13-15周,17-18周|新D307|钟玉洁
 工程材料|2|5-6|6-7周|新C406|钟玉洁
 高等数学Ⅰ|2|7-8|10周|新D310|胡丽娟
-高等数学Ⅰ|2|7-8|13周|新B201|胡丽娟
-职业发展与就业指导(含专业认知）（上）|2|9-10|3-6周|新D401|袁佐霄
+高等数学Ⅰ|2|7-8|13周|新B201|胡丽娟职业发展与就业指导(含专业认知）（上）|2|9-10|3-6周|新D401|袁佐霄
 思想道德与法治|2|9-10|7周,10-11周,13-15周,17-18周|新D310|付灿
 数字技术应用基础|3|1-2|4-8周,10-11周,13-15周,17周|新D301|钱欣丽
 大学体育Ⅰ|3|3-4|7周|新校区运动场|周金伟
@@ -945,14 +945,13 @@ function init(){
   const ws=document.getElementById('weekSelect');
   for(let i=1;i<=TOTAL_WEEKS;i++){const opt=document.createElement('option');opt.value=i;opt.textContent='第 '+i+' 周';ws.appendChild(opt);}
   document.getElementById('prevBtn').addEventListener('click',()=>{
-    if(currentWeek>1){currentWeek--;try{localStorage.setItem(WEEK_KEY,currentWeek);}catch(e){}render();}
+    if(currentWeek>1){currentWeek--;render();}
   });
   document.getElementById('nextBtn').addEventListener('click',()=>{
-    if(currentWeek<TOTAL_WEEKS){currentWeek++;try{localStorage.setItem(WEEK_KEY,currentWeek);}catch(e){}render();}
+    if(currentWeek<TOTAL_WEEKS){currentWeek++;render();}
   });
   ws.addEventListener('change',e=>{
     currentWeek=Number(e.target.value);
-    try{localStorage.setItem(WEEK_KEY,currentWeek);}catch(err){}
     render();
   });
 
@@ -1000,6 +999,6 @@ function init(){
 }
 init();
 </script>
-<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 </body>
 </html>
