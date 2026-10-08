@@ -89,6 +89,24 @@ thead th.wknd{background:#fbf3e6;color:#9a6a00;}
 }
 .course.moved-in .c-note{color:#2e7d32!important;font-weight:700!important;}
 
+/* ★ 补课样式 */
+.course.makeup-day{
+  background:linear-gradient(135deg,#e8f5e9 0%,#c8e6c9 100%)!important;
+  border-left-color:#2e7d32!important;
+  border-left-style:solid!important;
+  border-left-width:5px!important;
+  box-shadow:0 0 0 2px rgba(46,125,50,.25),0 1px 4px rgba(46,125,50,.15)!important;
+}
+.course.makeup-day .c-name{color:#1b5e20!important;}
+.course.makeup-day::after{
+  content:'📌 补周三课';
+  position:absolute;top:2px;right:4px;font-size:10px;color:#fff;
+  background:linear-gradient(135deg,#43a047,#1b5e20);
+  border-radius:3px;padding:1px 5px;font-weight:700;
+  box-shadow:0 1px 2px rgba(46,125,50,.4);
+}
+.course.makeup-day .c-note{color:#1b5e20!important;font-weight:700!important;}
+
 .orig-under{font-size:10px;color:#aab;margin-top:4px;padding-top:3px;border-top:1px dashed #e0d0d0;line-height:1.4;}
 .orig-under b{color:#99a;font-weight:600;}
 
@@ -264,7 +282,6 @@ footer a{color:#4a78c2;text-decoration:none;font-weight:700;}
 <script>
 const STORE_KEY='kb_data_v2';
 const CLASS_KEY='kb_last_class_v1';
-const WEEK_KEY='kb_last_week_v1';
 function loadData(){try{return JSON.parse(localStorage.getItem(STORE_KEY))||{};}catch(e){return {};}}
 function saveData(all){localStorage.setItem(STORE_KEY,JSON.stringify(all));}
 
@@ -276,11 +293,9 @@ const LOCAL_PASSWORD='1234';
 let loginRole='';
 let currentWeek=getTodayWeek(),currentClassKey='dq',todayWeek=getTodayWeek(),todayDay=getTodayDay();
 
-/* ★ 班级跟上次，周次跟今日 */
 try{
   const savedClass=localStorage.getItem(CLASS_KEY);
   if(savedClass && savedClass!=='') currentClassKey=savedClass;
-  /* 周次不再从 localStorage 读取，直接用今日所在周 */
   currentWeek=getTodayWeek();
 }catch(e){}
 
@@ -288,6 +303,15 @@ const BUKE_NOTE='补10月6日（第6周周二）';
 const BUKE_NOTICE='调课：9月20日（第3周周日）补上 10月6日（第6周周二）的课程。';
 const GLOBAL_NOTICE_END=new Date(2026,8,21,0,0,0);
 const GLOBAL_NOTICE='📌 '+BUKE_NOTICE;
+
+/* ★ 本周六补第6周周三课程 */
+const SAT_MAKEUP={
+  week:6,            // 第6周
+  satDay:6,          // 周六
+  fromDay:3,         // 补周三的课
+  note:'补第6周周三课程',
+  range:'10/10（周六）补 10/7（周三）'
+};
 
 function isNoticeActive(){
   if(!GLOBAL_NOTICE)return false;
@@ -421,7 +445,8 @@ jg:{n:'建筑工程2601',m:'建筑工程技术',pr:'认识实习@陈莉@9;工程
 工程材料|2|5-6|9-11周,13-15周,17-18周|新D307|钟玉洁
 工程材料|2|5-6|6-7周|新C406|钟玉洁
 高等数学Ⅰ|2|7-8|10周|新D310|胡丽娟
-高等数学Ⅰ|2|7-8|13周|新B201|胡丽娟职业发展与就业指导(含专业认知）（上）|2|9-10|3-6周|新D401|袁佐霄
+高等数学Ⅰ|2|7-8|13周|新B201|胡丽娟
+职业发展与就业指导(含专业认知）（上）|2|9-10|3-6周|新D401|袁佐霄
 思想道德与法治|2|9-10|7周,10-11周,13-15周,17-18周|新D310|付灿
 数字技术应用基础|3|1-2|4-8周,10-11周,13-15周,17周|新D301|钱欣丽
 大学体育Ⅰ|3|3-4|7周|新校区运动场|周金伟
@@ -717,7 +742,7 @@ function render(){
   const hb=document.getElementById('holidayBanner');
   if(currentWeek===4||currentWeek===5||currentWeek===6){
     hb.style.display='block';
-    hb.innerHTML='<span>🎑</span> 中秋国庆连休！9/25 ～ 10/7 共 13 天，中间无课，好好享受假期！🎉';
+    hb.innerHTML='<span>🎑</span> 中秋国庆连休！9/25 ～ 10/7 共 13 天。📌 10/10（第6周周六）补第6周周三课程！';
   }else{hb.style.display='none';}
 
   const pb=document.getElementById('pracBanner');
@@ -751,6 +776,12 @@ function render(){
       if(currentWeek===MAKEUP_TO_WEEK&&d===MAKEUP_TO_DAY){
         const makeup=courses.filter(c=>c.d===MAKEUP_FROM_DAY&&c.s[0]===sec.start&&c.s[1]===sec.end&&c.weeksSet.has(MAKEUP_FROM_WEEK));
         makeup.forEach(c=>{origHits.push({...c,_makeup:true,note:BUKE_NOTE});});
+      }
+
+      /* ★ 第6周周六：补第6周周三课程 */
+      let satMakeupHits=[];
+      if(currentWeek===SAT_MAKEUP.week && d===SAT_MAKEUP.satDay){
+        satMakeupHits=courses.filter(c=>c.d===SAT_MAKEUP.fromDay&&c.s[0]===sec.start&&c.s[1]===sec.end&&c.weeksSet.has(currentWeek));
       }
 
       if(isHoliday(currentWeek,d)){
@@ -829,6 +860,7 @@ function render(){
           }
         });
       }
+      /* 先渲染原课 */
       if(origHits.length){
         origHits.forEach(c=>{
           const div=makeCourseEl(c,{extraClass:newHits.length?' old':''});
@@ -836,6 +868,7 @@ function render(){
           td.appendChild(div);
         });
       }
+      /* 再渲染第4周周一新版 */
       if(newHits.length){
         newHits.forEach(c=>{
           const col=colorOf(c.n);
@@ -851,7 +884,23 @@ function render(){
           td.appendChild(div);
         });
       }
-      if(!origHits.length&&!newHits.length){
+      /* ★ 最后渲染第6周周六补课（周三课程） */
+      if(satMakeupHits.length){
+        satMakeupHits.forEach(c=>{
+          const col=colorOf(c.n);
+          const div=document.createElement('div');
+          div.className='course makeup-day';
+          div.style.background=col[0];
+          div.innerHTML='<div class="c-name"></div><div class="c-info"></div><div class="c-weeks"></div><div class="c-note"></div>';
+          div.querySelector('.c-name').textContent=c.n;
+          div.querySelector('.c-info').textContent=(c.p||'')+' · '+(c.t||'');
+          div.querySelector('.c-weeks').textContent='📌 '+SAT_MAKEUP.range;
+          div.querySelector('.c-note').textContent='📌 '+SAT_MAKEUP.note;
+          bindCell(div,currentClassKey,d,sec.start,sec.end);
+          td.appendChild(div);
+        });
+      }
+      if(!origHits.length&&!newHits.length&&!satMakeupHits.length){
         const e=document.createElement('div');e.className='empty';e.textContent='—';
         bindCell(e,currentClassKey,d,sec.start,sec.end);
         td.appendChild(e);
