@@ -107,6 +107,24 @@ thead th.wknd{background:#fbf3e6;color:#9a6a00;}
 }
 .course.makeup-day .c-note{color:#1b5e20!important;font-weight:700!important;}
 
+/* ★ 停课样式 */
+.course.suspended{
+  background:linear-gradient(135deg,#fff8e1 0%,#ffecb3 100%)!important;
+  border-left-color:#f57c00!important;
+  border-left-style:solid!important;
+  border-left-width:5px!important;
+  box-shadow:0 0 0 2px rgba(245,124,0,.25),0 1px 4px rgba(245,124,0,.15)!important;
+}
+.course.suspended .c-name{color:#e65100!important;}
+.course.suspended::after{
+  content:'📅 停课';
+  position:absolute;top:2px;right:4px;font-size:10px;color:#fff;
+  background:linear-gradient(135deg,#f57c00,#e65100);
+  border-radius:3px;padding:1px 5px;font-weight:700;
+  box-shadow:0 1px 2px rgba(230,81,0,.4);
+}
+.course.suspended .c-note{color:#e65100!important;font-weight:700!important;}
+
 .orig-under{font-size:10px;color:#aab;margin-top:4px;padding-top:3px;border-top:1px dashed #e0d0d0;line-height:1.4;}
 .orig-under b{color:#99a;font-weight:600;}
 
@@ -306,12 +324,23 @@ const GLOBAL_NOTICE='📌 '+BUKE_NOTICE;
 
 /* ★ 本周六补第6周周三课程 */
 const SAT_MAKEUP={
-  week:6,            // 第6周
-  satDay:6,          // 周六
-  fromDay:3,         // 补周三的课
+  week:6,
+  satDay:6,
+  fromDay:3,
   note:'补第6周周三课程',
   range:'10/10（周六）补 10/7（周三）'
 };
+
+/* ★ 道桥班第7周周三 7-8 节 数字技术应用基础 停课，以后调课 */
+const SUSPEND={
+  dq:{week:7,day:3,sections:[[7,8]],course:'数字技术应用基础',note:'以后调课'}
+};
+function isSuspended(key,week,day,s1,s2){
+  const s=SUSPEND[key];
+  if(!s)return false;
+  return week===s.week && day===s.day
+    && s.sections.some(sec=>sec[0]===s1 && sec[1]===s2);
+}
 
 function isNoticeActive(){
   if(!GLOBAL_NOTICE)return false;
@@ -778,7 +807,6 @@ function render(){
         makeup.forEach(c=>{origHits.push({...c,_makeup:true,note:BUKE_NOTE});});
       }
 
-      /* ★ 第6周周六：补第6周周三课程 */
       let satMakeupHits=[];
       if(currentWeek===SAT_MAKEUP.week && d===SAT_MAKEUP.satDay){
         satMakeupHits=courses.filter(c=>c.d===SAT_MAKEUP.fromDay&&c.s[0]===sec.start&&c.s[1]===sec.end&&c.weeksSet.has(currentWeek));
@@ -850,6 +878,12 @@ function render(){
         return;
       }
 
+      /* ★ 道桥班第7周周三 7-8 节 数字技术应用基础 停课 */
+      let suspendHits=[];
+      if(isSuspended(currentClassKey,currentWeek,d,sec.start,sec.end)){
+        suspendHits=origHits.filter(c=>c.n==='数字技术应用基础');
+      }
+
       let newHits=[];
       if(currentWeek===4&&d===1&&WEEK4_MON_NEW[currentClassKey]){
         WEEK4_MON_NEW[currentClassKey].forEach(nc=>{
@@ -860,10 +894,12 @@ function render(){
           }
         });
       }
-      /* 先渲染原课 */
+
+      /* 先渲染原课（停课的原课标灰） */
       if(origHits.length){
         origHits.forEach(c=>{
-          const div=makeCourseEl(c,{extraClass:newHits.length?' old':''});
+          const isSusp = suspendHits.indexOf(c)>=0;
+          const div=makeCourseEl(c,{extraClass:newHits.length||isSusp?' old':''});
           bindCell(div,currentClassKey,d,sec.start,sec.end);
           td.appendChild(div);
         });
@@ -884,7 +920,15 @@ function render(){
           td.appendChild(div);
         });
       }
-      /* ★ 最后渲染第6周周六补课（周三课程） */
+      /* ★ 停课提示 */
+      if(suspendHits.length){
+        const div=document.createElement('div');
+        div.className='course suspended';
+        div.innerHTML='<div class="c-name">📅 停课</div><div class="c-info">数字技术应用基础</div><div class="c-weeks">第7周周三 7-8 节</div><div class="c-note">📅 以后调课</div>';
+        bindCell(div,currentClassKey,d,sec.start,sec.end);
+        td.appendChild(div);
+      }
+      /* 第6周周六补课 */
       if(satMakeupHits.length){
         satMakeupHits.forEach(c=>{
           const col=colorOf(c.n);
@@ -900,7 +944,7 @@ function render(){
           td.appendChild(div);
         });
       }
-      if(!origHits.length&&!newHits.length&&!satMakeupHits.length){
+      if(!origHits.length&&!newHits.length&&!satMakeupHits.length&&!suspendHits.length){
         const e=document.createElement('div');e.className='empty';e.textContent='—';
         bindCell(e,currentClassKey,d,sec.start,sec.end);
         td.appendChild(e);
